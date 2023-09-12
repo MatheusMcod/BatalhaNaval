@@ -1,15 +1,13 @@
 import './styleBody.css'
 
-const bt = ["Contra IA", "2 jogadores", "Configurações" ];
-
 function Body(){
     return(
         <div className='body'>
             <ul className='ListaDeBotoes'>
                 <li>
-                    {bt.map((bt)=>(
-                        <button>{bt}</button>
-                    ))}
+                   <button><a href=''>CONTRA IA</a></button>
+                   <button><a href=''>2 JOGADORES</a></button>
+                   <button><a href=''>CONFIGURAÇÕES</a></button>
                 </li>
             </ul>
         </div>

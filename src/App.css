@@ -1,5 +1,10 @@
-.conteiner{
+.Conteiner{
+    padding-top: 2vw;
+    margin-top: -2vh;
+    position: fixed;
     width: 100vw;
     height: 100vh;
     background-color: bisque;
+    background-image: url("./Imagens/fundo2.jpg");
+    background-size: 100vw;
 }
