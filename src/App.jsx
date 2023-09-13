@@ -1,18 +1,17 @@
 import './App.css'
-import Body from './componentes/Body'
-import Header from './componentes/Header'
+import Home from './pages/Home'
+import { BrowserRouter as Router, Routes, Route /*, Link*/ } from 'react-router-dom'
 
 function App() {
 
   return (
-    <>
     <div className='Conteiner'>
-        {Header}
-        {Body}
-    </div>
-     
-     
-    </>
+        <Router>
+          <Routes>
+            <Route path="/" exact element={<Home/>}/>
+          </Routes>
+        </Router>
+    </div> 
   )
 }
 
