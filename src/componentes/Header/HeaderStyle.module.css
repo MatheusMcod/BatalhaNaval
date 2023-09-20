@@ -1,33 +1,27 @@
 .header{
+    display: flex;
+    justify-content: center;
+    align-items: center;
     border: 1px solid black;
     margin:auto;
     width: 600px;
     height: 100px;
     margin-bottom: 60px;
+    margin-top: 30px;
     border-radius: 15px 15px 15px 15px;
-    z-index: 1;
-    position: relative;
     background-color: #d4f1ffbd;
     background-image: -webkit-linear-gradient(1160deg, #d4f1ff66 0%, #87e5dc5f 79%);
     background-image: -moz-linear-gradient(160deg, #d4f1ff66 0%, #87e5dc5f 79%);
     background-image: -o-linear-gradient(160deg, #d4f1ff66 0%, #87e5dc5f 79%);
     background-image: linear-gradient(160deg, #d4f1ff66 0%, #87e5dc5f 79%);
 
-    
-
 }
 
 .title{
-    margin-left:30px;
-    float: left;
     font-size: 39px;
 }
 
 .icone{
     width:60px;
-    float: right;
-    margin-right:60px;
-    margin-top:10px;
-    z-index: 1;
-    position: relative;
+    margin-left: 20px;
 }

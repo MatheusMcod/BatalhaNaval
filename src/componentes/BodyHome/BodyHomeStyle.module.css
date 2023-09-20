@@ -1,5 +1,4 @@
 .body{
-  z-index: 1;
   width: 400px;
   height: 400px;
   border: 2px solid #4f6365;
@@ -14,20 +13,16 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  /* border: 1px solid red; */
-  align-items: left;
+  align-items: center;
 }
 
 .buttons{
-  z-index: 1;
+  margin-top: 55px;
   font-size:27px;
   font-family: 'Times New Roman', Times, serif;
-  margin: 20px;
   width:280px;
   height: 50px;
   border-radius: 20px 20px 20px 20px;
-  /* border: ; */
-  align-items: center;
   background-color: #74EBD5;
   background-image: -webkit-linear-gradient(90deg, #74EBD5 0%, #9FACE6 100%);
   background-image: -moz-linear-gradient(90deg, #74EBD5 0%, #9FACE6 100%);
@@ -36,10 +31,10 @@
 }
 
 .buttons:hover{
-box-shadow: 5px 5px 5px #57bca9;
-width: 281px;
+  box-shadow: 5px 5px 5px #57bca9;
+  width: 281px;
 }
 
 .buttons a {
-text-decoration: none;
+  text-decoration: none;
 }
