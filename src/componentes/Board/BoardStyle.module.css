@@ -1,0 +1,40 @@
+.board_container {
+    display: flex;
+}
+
+.grid_container_board {
+    display: grid;
+    grid-template-columns: repeat(10, 60px); 
+    grid-template-rows: repeat(10, 60px);     
+}
+  
+.grid_item {
+    display: flex;
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center;
+    border: 1px solid #000000; /* Uma borda para cada célula */            /* Alinhar conteúdo ao centro */
+}
+
+.ships_img {
+    width: 98%;
+    height: 80%;
+}
+
+.ship_size1 {
+    grid-column: span 1;
+}
+
+.ship_size2 {
+    grid-column: span 2;
+}
+
+.ship_size3 {
+    grid-column: span 3;
+}
+
+.ship_size4 {
+    grid-column: span 4;
+}
+
+
+
