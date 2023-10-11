@@ -60,17 +60,17 @@ function GameGride() {
     }
     setUserOpt.push(userOpt);
     setUserOptShipsPosition(setUserOpt);
-    console.log(userOptShipsPosition)
   }
 
   const checkPosition = (positionShip, sizeShip) => {
+    
     if (positionShip < 0 && positionShip > 99) {
       return false
     }
 
     let limitGrid = positionShip%10;
-    if (limitGrid >= 7 && limitGrid <= 9) {
-      limitGrid += sizeShip;
+    if (limitGrid >= 6 && limitGrid <= 9) {
+      limitGrid += sizeShip-1;
       if (limitGrid > 9) return false;
     }
 
@@ -98,7 +98,11 @@ function GameGride() {
 
   const verifyCellRemoved = (positionShip, updatedGridItems) => {
     let cellsRemoved=0;
+    
       for (let i=0; i < positionShip; i++) {
+        if (updatedGridItems[i].id == positionShip) {
+          break;
+        }
         if(updatedGridItems[i].content != null) {
           cellsRemoved += updatedGridItems[i].sizeShip-1;
         }
@@ -109,14 +113,13 @@ function GameGride() {
   const shipsPosition = (shipNumber, positionShip) => {
     const updatedGridItems = [...gridItems];
     let shipInst = ships[shipNumber];
-
-    verifyCellRemoved(positionShip, updatedGridItems);
-    if (checkPosition(positionShip  + verifyCellRemoved(positionShip, updatedGridItems), shipInst.sizeShip) && shipInst.quantity > 0) {
+    console.log(checkPosition(positionShip, shipInst.sizeShip))
+    if (checkPosition(positionShip, shipInst.sizeShip) && shipInst.quantity > 0) {
       ships.forEach(ship => {
         if(ship.id == shipNumber) {
           positionShip = positionShip - verifyCellRemoved(positionShip, updatedGridItems);
           
-          setUserOptPosition(ship, positionShip);
+          setUserOptPosition(ship, positionShip + verifyCellRemoved(positionShip, updatedGridItems));
 
           if (ship.sizeShip > 1) {
             updatedGridItems.splice(positionShip+1, ship.sizeShip-1);
@@ -125,7 +128,6 @@ function GameGride() {
           updatedGridItems[positionShip].content = ship.content;
           updatedGridItems[positionShip].sizeShip = ship.sizeShip;
           ship.quantity--;
-
         } 
       })
     } else {
