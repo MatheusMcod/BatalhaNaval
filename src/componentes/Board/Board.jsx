@@ -1,6 +1,5 @@
 import styles from './BoardStyle.module.css'
 import Ships from '../Ships/Ships';
-import './GlobalBoardStyle.css';
 import shipsImg from '../../Imagens/ShipsImages/ShipsExport';
 import { useState } from 'react';
 

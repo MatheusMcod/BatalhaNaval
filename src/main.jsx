@@ -7,6 +7,7 @@ import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Home from './routes/Home.jsx'
 import ChooseDifficulty from './routes/ChooseDifficulty'
+import SelectionBoard from './routes/SelectionBoard.jsx'
 
 
 const router = createBrowserRouter([
@@ -16,8 +17,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/Difficulty",
-    element: <ChooseDifficulty/> 
-  
+    element: <ChooseDifficulty/>
+  },
+  {
+    path: "/Board",
+    element:<SelectionBoard/>
   }
 ])
 
