@@ -20,5 +20,4 @@ class phptest extends CreateConnection {
         header("Content-type: application/json");
         echo json_encode($j);
     }
-    
 }

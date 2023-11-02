@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 src/api/database/CreateConnection.php
+src/api/vendor
 dist
 dist-ssr
 *.local
