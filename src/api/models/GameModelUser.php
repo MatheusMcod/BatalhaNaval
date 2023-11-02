@@ -1,8 +1,31 @@
 <?php
-class GameModelUser {
+class GameModelUser extends CreateConnection {
 
-    public function registerPositionUser($positions) {
-        //Registrar as posições iniciais
+    public function registerPositionUser($ships) {
+        $connection = $this->conectaDB();
+
+        try {
+            $connection->beginTransaction();
+
+            foreach($ships as $ship) {
+                $stmt = $connection->prepare("INSERT INTO usershipsnames (name) VALUES (:shipName)");
+                $stmt->bindParam(':shipName', $ship->name);
+                $stmt->execute();
+                $shipId = $connection->lastInsertId();
+
+                $stmt = $connection->prepare("INSERT INTO usershipspositions (position, shipName) VALUES (:position, :shipNameID)");
+                foreach ($ship->positions as $position) {
+                    $stmt->bindParam(':position', $position);
+                    $stmt->bindParam(':shipNameID', $shipId);
+                    $stmt->execute();
+                }
+            }
+
+            $connection->commit();
+        } catch (PDOException $error) {
+            $connection->rollBack();
+            echo $error->getMessage();
+        }
     }
 
     public function getPositionUser() {

@@ -1,5 +1,5 @@
 <?php
 
 $routes = [
-    '/' => 'phptest@exibir'
+    '/' => 'GameController@startGame'
 ];
