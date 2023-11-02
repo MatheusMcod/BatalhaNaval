@@ -1,6 +1,12 @@
+body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .board_container {
     display: flex;
 }
+
 
 .grid_container_board {
     display: grid;
@@ -8,6 +14,63 @@
     grid-template-rows: repeat(10, 60px);     
 }
   
+.sub_container{
+
+    padding: 10px;
+
+}
+
+.DivRow{
+    padding-left: 20px;
+    height: 20px;
+    width: 100%;
+
+}
+.listahorizontal {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin-bottom: 10px;
+    /* border: 1px solid red; */
+    
+}
+    
+.listahorizontal li {
+    text-align: center;
+    width: 60px;
+    height:20px;
+    /* border: 1px solid red; */
+    font-size: large;
+    font-weight: 700;
+}
+
+.DivCollun {
+    float: left;
+    height: 100%;
+    width: 20px;
+}
+
+.listaVertical {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    padding: 0;
+    /* border: 1px solid red; */
+ 
+}
+.listaVertical li{
+    display: flex;
+    width: 20px;
+    height:60px;
+    align-items: center;
+    justify-self: center;
+    /* border: 1px solid red; */
+    font-size: large;
+    font-weight: 700;
+}
+
+
+
 .grid_item {
     display: flex;
     justify-content: center; /* Centraliza horizontalmente */

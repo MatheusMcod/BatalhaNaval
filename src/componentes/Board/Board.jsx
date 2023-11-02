@@ -9,31 +9,31 @@ function GameGride() {
       id: 0,
       sizeShip: 2,
       quantity: 2,
-      content:<img src={shipsImg.ship1} className={styles.ships_img} id='ship_00'></img>
+      content: <img src={shipsImg.ship1} className={styles.ships_img} id='ship_00'></img>
     },
     {
-      id:1,
+      id: 1,
       sizeShip: 4,
       quantity: 1,
-      content:<img src={shipsImg.ship2} className={styles.ships_img} id='ship_01'></img>
+      content: <img src={shipsImg.ship2} className={styles.ships_img} id='ship_01'></img>
     },
     {
       id: 2,
       sizeShip: 1,
       quantity: 4,
-      content:<img src={shipsImg.ship3} className={styles.ships_img} id='ship_02'></img>
+      content: <img src={shipsImg.ship3} className={styles.ships_img} id='ship_02'></img>
     },
     {
       id: 3,
       sizeShip: 3,
       quantity: 1,
-      content:<img src={shipsImg.ship4} className={styles.ships_img} id='ship_03'></img>
+      content: <img src={shipsImg.ship4} className={styles.ships_img} id='ship_03'></img>
     },
     {
       id: 4,
       sizeShip: 3,
       quantity: 2,
-      content:<img src={shipsImg.ship5} className={styles.ships_img} id='ship_04'></img>
+      content: <img src={shipsImg.ship5} className={styles.ships_img} id='ship_04'></img>
     },
   ]);
   /*
@@ -56,10 +56,10 @@ function GameGride() {
 
   // Aqui definimos as posições que o usuario escolheu, que serão enviadas ao back.
   const setUserOptPosition = (ship, positionShip) => {
-    const userOpt = { id: ship.id, position: []};
+    const userOpt = { id: ship.id, position: [] };
     let setUserOpt = [...userOptShipsPosition];
-    for(let i=0; i<ship.sizeShip; i++) {
-      userOpt.position[i] = positionShip+i;
+    for (let i = 0; i < ship.sizeShip; i++) {
+      userOpt.position[i] = positionShip + i;
     }
     setUserOpt.push(userOpt);
     setUserOptShipsPosition(setUserOpt);
@@ -73,20 +73,20 @@ function GameGride() {
     }
 
     //se está dentro do limite vertical do grid.
-    let limitGrid = positionShip%10;
+    let limitGrid = positionShip % 10;
     if (limitGrid >= 6 && limitGrid <= 9) {
-      limitGrid += sizeShip-1;
+      limitGrid += sizeShip - 1;
       if (limitGrid > 9) return false;
     }
 
     //se a posição já está ocupada por algum outro navio.
-    for (let i=0; i<sizeShip; i++) {
-      for(let userOptPosition of userOptShipsPosition ) {
-        if(userOptPosition.position.includes(positionShip+i) ) {
+    for (let i = 0; i < sizeShip; i++) {
+      for (let userOptPosition of userOptShipsPosition) {
+        if (userOptPosition.position.includes(positionShip + i)) {
           return false;
-        } 
+        }
       }
-    }  
+    }
     return true;
   };
 
@@ -107,67 +107,103 @@ function GameGride() {
   Para fins de manter o posicionamento do grid correto, quando removemos células do grid verificamos quantas foram removidas e fazemos os ajustes necessários para não ocorrer erros no posicionamento do grid.
   */
   const verifyCellRemoved = (positionShip, updatedGridItems) => {
-    let cellsRemoved=0;
-      for (let i=0; i < positionShip; i++) {
-        if (updatedGridItems[i].id == positionShip) {
-          break;
-        }
-        if(updatedGridItems[i].content != null) {
-          cellsRemoved += updatedGridItems[i].sizeShip-1;
-        }
+    let cellsRemoved = 0;
+    for (let i = 0; i < positionShip; i++) {
+      if (updatedGridItems[i].id == positionShip) {
+        break;
       }
+      if (updatedGridItems[i].content != null) {
+        cellsRemoved += updatedGridItems[i].sizeShip - 1;
+      }
+    }
     return cellsRemoved;
   }
 
   const shipsPosition = (shipNumber, positionShip) => {
     const updatedGridItems = [...gridItems];
-    let {sizeShip: shipSize, quantity: shipQuantity, content: shipContent} = ships[shipNumber];
+    let { sizeShip: shipSize, quantity: shipQuantity, content: shipContent } = ships[shipNumber];
     let cellsRemoved = verifyCellRemoved(positionShip, updatedGridItems);
     if (checkPosition(positionShip, shipSize) && shipQuantity > 0) {
-          //Diminuimos o numero de celulas com base na posição do grid e dos navios já setados.
-          positionShip = positionShip - cellsRemoved;
-          
-          //Nas posições do usuario somamos as posições removidas novamente, pois não podemos ter alterações nas posições que vão para o back.
-          setUserOptPosition(ships[shipNumber], positionShip + cellsRemoved);
+      //Diminuimos o numero de celulas com base na posição do grid e dos navios já setados.
+      positionShip = positionShip - cellsRemoved;
 
-          if (shipSize > 1) {
-            updatedGridItems.splice(positionShip+1, shipSize-1);
-          }
+      //Nas posições do usuario somamos as posições removidas novamente, pois não podemos ter alterações nas posições que vão para o back.
+      setUserOptPosition(ships[shipNumber], positionShip + cellsRemoved);
 
-          updatedGridItems[positionShip].content = shipContent;
-          updatedGridItems[positionShip].sizeShip = shipSize;
-          ships.quantity--;
+      if (shipSize > 1) {
+        updatedGridItems.splice(positionShip + 1, shipSize - 1);
+      }
+
+      updatedGridItems[positionShip].content = shipContent;
+      updatedGridItems[positionShip].sizeShip = shipSize;
+      ships.quantity--;
     } else {
-      console.log ("Valor não disponivel");
+      console.log("Valor não disponivel");
     }
-    
+
     setGridItems(updatedGridItems);
   };
 
-  
+  const letras10 = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+  const letras15 = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'k', 'l', 'm', 'n', 'o'];
+  const num10 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const num15 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+
+  let letras;
+  if (numRows === 10) {
+    letras = letras10;
+  } else if (numRows === 15) {
+    letras = letras15;
+  }
+
+  let num;
+  if (numCols === 10) {
+    num = num10;
+  } else if (numCols === 15) {
+    num = num15;
+  }
 
   return (
     <div className={styles.board_container}>
-      <div className={styles.grid_container_board}>
-        {gridItems.map(item => {
-          if (item.content == null) {
-            return (
-              <div key={item.id} className={styles.grid_item} id={`item-${item.id}`}>
-                {item.content}
-              </div>
-            ) 
-          } else {
-            return (
-              <div key={item.id} className={`${styles.grid_item} ${setClass(item.sizeShip)}`} id={`item-${item.id}`}>
-                {item.content}
-              </div>
-            ) 
-          }
-        })}
+
+      <div className={styles.sub_container}>
+        <div className={styles.DivRow}>
+          <ul className={styles.listahorizontal}>
+            {letras.map((letra, index) => (
+              <li key={index}>{letra}</li>
+            ))}
+          </ul>
+        </div>
+        <div className={styles.DivCollun}>
+          <ul className={styles.listaVertical}>
+            {num.map((numero, index) => (
+              <li key={index}>{numero}</li>
+            ))}
+          </ul>
+        </div>
+        <div className={styles.grid_container_board}>
+
+
+          {gridItems.map(item => {
+            if (item.content == null) {
+              return (
+                <div key={item.id} className={styles.grid_item} id={`item-${item.id}`}>
+                  {item.content}
+                </div>
+              )
+            } else {
+              return (
+                <div key={item.id} className={`${styles.grid_item} ${setClass(item.sizeShip)}`} id={`item-${item.id}`}>
+                  {item.content}
+                </div>
+              )
+            }
+          })}
+        </div>
       </div>
 
       <div>
-        <Ships/>
+        <Ships />
       </div>
 
       <div>
@@ -179,8 +215,8 @@ function GameGride() {
           <label>Navio</label>
           <input type='number' onChange={(event) => Number(setShip(event.target.value))}></input>
         </div>
-        
-        
+
+
         <button onClick={() => shipsPosition(ship, Number(position))}>Teste</button>
       </div>
     </div>

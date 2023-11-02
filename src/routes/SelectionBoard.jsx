@@ -6,7 +6,6 @@ function SelectionBoard() {
 
     return (
         <>
-            <Header/>
             <Board/>
         </>
     );
