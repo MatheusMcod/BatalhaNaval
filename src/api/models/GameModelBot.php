@@ -1,5 +1,5 @@
 <?php
-
+require_once '/wamp64/www/project/batalhaNaval/src/api/database/CreateConnection.php';
 class GameModelBot extends CreateConnection {
 
     public function registerPositionBot($ships) {
@@ -9,16 +9,16 @@ class GameModelBot extends CreateConnection {
             $connection->beginTransaction();
 
             foreach($ships as $ship) {
-                $stmt = $connection->prepare("INSERT INTO botshipsnames (name) VALUES (:shipName)");
-                $stmt->bindParam(':shipName', $ship->name);
-                $stmt->execute();
+                $stmt1 = $connection->prepare("INSERT INTO botshipsnames(name) VALUES (:shipName)");
+                $stmt1->bindValue(':shipName', $ship->getName());
+                $stmt1->execute();
                 $shipId = $connection->lastInsertId();
 
-                $stmt = $connection->prepare("INSERT INTO botshipspositions (position, shipName) VALUES (:position, :shipNameID)");
-                foreach ($ship->positions as $position) {
-                    $stmt->bindParam(':position', $position);
-                    $stmt->bindParam(':shipNameID', $shipId);
-                    $stmt->execute();
+                $stmt2 = $connection->prepare("INSERT INTO botshipspositions (position, shipName) VALUES (:position, :shipNameID)");
+                foreach ($ship->getPositions() as $position) {
+                    $stmt2->bindValue(':position', $position);
+                    $stmt2->bindValue(':shipNameID', $shipId);
+                    $stmt2->execute();
                 }
             }
 

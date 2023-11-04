@@ -1,4 +1,5 @@
 <?php
+require_once '/wamp64/www/project/batalhaNaval/src/api/database/CreateConnection.php';
 class GameModelUser extends CreateConnection {
 
     public function registerPositionUser($ships) {
@@ -26,6 +27,10 @@ class GameModelUser extends CreateConnection {
             $connection->rollBack();
             echo $error->getMessage();
         }
+    }
+
+    public function registerUserMove($move) {
+
     }
 
     public function getPositionUser() {

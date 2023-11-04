@@ -1,6 +1,7 @@
 <?php
 require_once '/wamp64/www/project/batalhaNaval/src/api/models/GameModelBot.php';
 require_once '/wamp64/www/project/batalhaNaval/src/api/models/GameModelUser.php';
+require_once __DIR__. '/Ships.php';
 class GameController {
 
     private $modelBot;
@@ -12,8 +13,8 @@ class GameController {
     }
 
     private function randomPositionsBot() {
-        $ships = [new Ships('Porta Avioes', 5),
-                  new Ships('Navio-Tanque', 4), new Ships('Navio-Tanque', 4),
+        $ships = [new Ships('PortaAvioes', 5),
+                  new Ships('Navio_Tanque', 4), new Ships('Navio_Tanque', 4),
                   new Ships('Contratorpedeiro', 3), new Ships('Contratorpedeiro', 3), new Ships('Contratorpedeiro', 3),
                   new Ships('Submarinos', 2), new Ships('Submarinos', 2), new Ships('Submarinos', 2), new Ships('Submarinos', 2)];
         $grid = array_fill(0, 99, 0);
@@ -23,19 +24,15 @@ class GameController {
             $size = $ship->getSize();
         
             for($i=0; $i < $size; $i++) {
-                $positions = rand(0, 99);
-    
-                while ($positions + $size > 99 || ($positions + $size)%10 > $positions%10 || $grid[$positions] == -1) {
+                do {
                     $positions = rand(0, 99);
-                }
-
-                array_slice($grid, $positions, $size);
+                } while ($positions + $size > 99 || ($positions + $size)%10 > 9 || $grid[$positions] == -1);
 
                 for ($j = 0; $j < $size; $j++) {
                     $grid[$positions + $j] = -1;
                 }
 
-                $botPositions[$i] = $positions;
+                $botPositions[] = $positions;
             }
             $ship->setPositions($botPositions);
         }
@@ -55,14 +52,34 @@ class GameController {
               http_response_code(400);
               echo json_encode(array('Response' => 'Invalide Data'));
             }
-          } else {
+        } else {
             http_response_code(405); 
             echo json_encode(array('mensagem' => 'Método não permitido.'));
-          }
+        }
     }
 
     public function startGame() {
         $this->modelBot->registerPositionBot($this->randomPositionsBot());
         $this->PositionsUser();
+    }
+
+    public function userMove() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = json_decode(file_get_contents('php://input'));
+
+            if ($data) {
+              $move = $data->move;
+              $this->modelUser->registerUserMove($move);
+    
+              http_response_code(200);
+              echo json_encode(array('Response' => 'Sucessful'));
+            } else {
+              http_response_code(400);
+              echo json_encode(array('Response' => 'Invalide Data'));
+            }
+        } else {
+            http_response_code(405); 
+            echo json_encode(array('mensagem' => 'Método não permitido.'));
+        }
     }
 }
