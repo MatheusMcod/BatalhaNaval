@@ -1,5 +1,6 @@
 <?php
 
 $routes = [
-    '/' => 'GameController@startGame'
+    '/' => 'GameController@startGame',
+    '/user/move' => 'GameController@userMove'
 ];

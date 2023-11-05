@@ -11,7 +11,7 @@ class Core {
         $routerFound = false;
 
         foreach($routes as $path => $controller) {
-            $pattern = '#^'.preg_replace('/{id}/', '(\w-)', $path).'$#';
+            $pattern = '#^'.preg_replace('/{id}/', '(\w+)', $path).'$#';
 
             if (preg_match($pattern, $url, $matches)) {
                 array_shift($matches);

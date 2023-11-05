@@ -10,14 +10,14 @@ class GameModelUser extends CreateConnection {
 
             foreach($ships as $ship) {
                 $stmt = $connection->prepare("INSERT INTO usershipsnames (name) VALUES (:shipName)");
-                $stmt->bindParam(':shipName', $ship->name);
+                $stmt->bindValue(':shipName', $ship->name);
                 $stmt->execute();
                 $shipId = $connection->lastInsertId();
 
                 $stmt = $connection->prepare("INSERT INTO usershipspositions (position, shipName) VALUES (:position, :shipNameID)");
                 foreach ($ship->positions as $position) {
-                    $stmt->bindParam(':position', $position);
-                    $stmt->bindParam(':shipNameID', $shipId);
+                    $stmt->bindValue(':position', $position);
+                    $stmt->bindValue(':shipNameID', $shipId);
                     $stmt->execute();
                 }
             }
@@ -25,11 +25,26 @@ class GameModelUser extends CreateConnection {
             $connection->commit();
         } catch (PDOException $error) {
             $connection->rollBack();
-            echo $error->getMessage();
+            error_log($error->getMessage());
+            echo "Erro na solicitação";
         }
     }
 
-    public function registerUserMove($move) {
+    public function registerUserMove($move, $shotType) {
+        $connection = $this->conectaDB();
+
+        try {
+            $stmt = $connection->prepare("INSERT INTO user_plays (Play, Tipe_Shot) VALUES (:move, :shotType)");
+            $stmt->bindValue(':move', $move);
+            $stmt->bindValue(':shotType', $shotType);
+            $stmt->execute();
+
+            return true;
+        } catch (PDOException $error) {
+            error_log($error->getMessage());
+            echo "Erro na solicitação";
+            return false;
+        }
 
     }
 

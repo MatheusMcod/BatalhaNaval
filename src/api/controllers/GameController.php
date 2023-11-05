@@ -68,11 +68,13 @@ class GameController {
             $data = json_decode(file_get_contents('php://input'));
 
             if ($data) {
-              $move = $data->move;
-              $this->modelUser->registerUserMove($move);
-    
-              http_response_code(200);
-              echo json_encode(array('Response' => 'Sucessful'));
+                $move = $data->move;
+                $shot = $data->shotType;
+
+                $response = $this->processUserMove($move, $shot);
+                
+                http_response_code(200);
+                echo json_encode(array('Response' => $response)); 
             } else {
               http_response_code(400);
               echo json_encode(array('Response' => 'Invalide Data'));
@@ -82,4 +84,32 @@ class GameController {
             echo json_encode(array('mensagem' => 'Método não permitido.'));
         }
     }
+
+    private function processUserMove($move, $shotType) {
+        $response = $this->modelUser->registerUserMove($move, $shotType);
+        if ($response) {
+            $response = $this->modelBot->removePositionBot($move);
+            if ($response) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function botMove() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        
+
+            http_response_code(200);
+            echo json_encode(array('Response' => 'Sucessful')); 
+        } else {
+            http_response_code(405); 
+            echo json_encode(array('mensagem' => 'Método não permitido.'));
+        }
+    }
+
+    
 }

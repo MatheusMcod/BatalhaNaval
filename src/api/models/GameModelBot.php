@@ -25,7 +25,8 @@ class GameModelBot extends CreateConnection {
             $connection->commit();
         } catch (PDOException $error) {
             $connection->rollBack();
-            echo $error->getMessage();
+            error_log($error->getMessage());
+            echo "Erro na solicitação";
         }
     }
 
@@ -33,8 +34,25 @@ class GameModelBot extends CreateConnection {
         //Buscar posição do bot
     }
 
-    public function removePositionUser() {
-        //remover posição do bot
+    public function removePositionBot($position) {
+        $connection = $this->conectaDB();
+        try {
+                $stmt = $connection->prepare("DELETE FROM botshipspositions WHERE position = :positionShip");
+                $stmt->bindValue(':positionShip', $position);
+                $stmt->execute();
+                $rowsDeleted = $stmt->rowCount();
+
+                if($rowsDeleted > 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+                
+        } catch (PDOException $error) {
+            error_log($error->getMessage());
+            echo "Erro na solicitação";
+            return false;
+        }
     }
 
     public function resetGameBot() {
