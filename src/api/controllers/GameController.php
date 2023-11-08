@@ -1,6 +1,8 @@
 <?php
 require_once '/wamp64/www/project/batalhaNaval/src/api/models/GameModelBot.php';
 require_once '/wamp64/www/project/batalhaNaval/src/api/models/GameModelUser.php';
+require_once '/wamp64/www/project/batalhaNaval/src/api/bot/NavalBotCreat.php';
+require_once '/wamp64/www/project/batalhaNaval/src/api/bot/NavalDifficultyBot.php';
 require_once __DIR__. '/Ships.php';
 class GameController {
 
@@ -44,7 +46,7 @@ class GameController {
             $data = json_decode(file_get_contents('php://input'));
 
             if ($data) {
-              $this->modelUser->registerPositionUser($data);
+              $this->modelUser->registerInicialPositionUser($data);
     
               http_response_code(200);
               echo json_encode(array('Response' => 'Sucessful'));
@@ -59,8 +61,13 @@ class GameController {
     }
 
     public function startGame() {
-        $this->modelBot->registerPositionBot($this->randomPositionsBot());
-        $this->PositionsUser();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->modelBot->registerInicialPositionBot($this->randomPositionsBot());
+            $this->PositionsUser();
+        } else {
+            http_response_code(405); 
+            echo json_encode(array('mensagem' => 'Método não permitido.'));
+        }
     }
 
     public function userMove() {
@@ -71,8 +78,12 @@ class GameController {
                 $move = $data->move;
                 $shot = $data->shotType;
 
-                $response = $this->processUserMove($move, $shot);
-                
+                if ($shot == "normal") {
+                    $response = $this->processNormalUserMove($move, $shot);
+                } else {
+                    $response = $this->processEspeciallUserMove($move, $shot);
+                }
+
                 http_response_code(200);
                 echo json_encode(array('Response' => $response)); 
             } else {
@@ -85,26 +96,59 @@ class GameController {
         }
     }
 
-    private function processUserMove($move, $shotType) {
-        $response = $this->modelUser->registerUserMove($move, $shotType);
-        if ($response) {
-            $response = $this->modelBot->removePositionBot($move);
-            if ($response) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
+    private function processNormalUserMove($move, $shotType) {
+        try {
+            foreach ($move as $position) {
+                $response = $this->modelBot->removePositionBot($position);
+                $target = $response ? 'hit' : 'miss';
+                $this->modelUser->registerUserMove($position, $shotType, $target);
+            } 
+            return "Successful";  
+        } catch(PDOException $error) {
+            error_log($error->getMessage());
+            return "Erro na Operação";
         }
     }
 
-    public function botMove() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        
+    private function processEspeciallUserMove($move, $shotType) {
+        $adjacentPositions = [0, -11, -10, -9, -1, 1, 9, 10, 11];
+        try {
+            foreach ($adjacentPositions as $adjacent) {
+                $newMove = $move + $adjacent;
+    
+                if (($move % 10 == 0 && in_array($adjacent, [-11, -1, 9])) ||
+                    ($move % 10 == 9 && in_array($adjacent, [11, 1, -9]))) {
+                    continue;
+                }
+    
+                if ($this->modelUser->userCheckMovExist($newMove) == false && $newMove >= 0 && $newMove <= 99) {
+                    $response = $this->modelBot->removePositionBot($newMove);
+                    $target = $response ? 'hit' : 'miss';
+                    $this->modelUser->registerUserMove($newMove, $shotType, $target);
+                }
+            }
+            return "Successful";
+        } catch(PDOException $error) {
+            error_log($error->getMessage());
+            return "Erro na Operação";
+        }      
+    }
 
-            http_response_code(200);
-            echo json_encode(array('Response' => 'Sucessful')); 
+    public function botMove() {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            if(isset($_GET['gridSize']) && isset($_GET['difficulty'])) {
+                $gridSize = $_GET['gridSize'];
+                $difficulty = $_GET['difficulty'];
+
+                $bot = BotCreat::createBot($difficulty);
+                $movBot = $bot->makeMove($gridSize);
+                
+                http_response_code(200);
+                echo json_encode($movBot); 
+            } else {
+                http_response_code(400);
+                echo json_encode(array('Response' => 'Invalid Data'));
+            }
         } else {
             http_response_code(405); 
             echo json_encode(array('mensagem' => 'Método não permitido.'));

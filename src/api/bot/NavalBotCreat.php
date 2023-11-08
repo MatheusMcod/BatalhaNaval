@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__. '/NavalDifficultyBot.php';
 
 class BotCreat {
     public static function createBot($difficulty) {

@@ -2,7 +2,7 @@
 require_once '/wamp64/www/project/batalhaNaval/src/api/database/CreateConnection.php';
 class GameModelBot extends CreateConnection {
 
-    public function registerPositionBot($ships) {
+    public function registerInicialPositionBot($ships) {
         $connection = $this->conectaDB();
 
         try {
@@ -30,8 +30,56 @@ class GameModelBot extends CreateConnection {
         }
     }
 
+    public function registerMovBot($move) {
+        $connection = $this->conectaDB();
+
+        try {
+            $stmt = $connection->prepare("INSERT INTO bot_plays(Play, Tipe_Shot, Target) VALUES (:move, :shot, :target)");
+            $stmt->bindValue(':move', $move["move"]);
+            $stmt->bindValue(':shot', $move["shot"]);
+            $stmt->bindValue(':target', $move["target"]);
+            $stmt->execute();
+        } catch (PDOException $error) {
+            error_log($error->getMessage());
+            echo "Erro na solicitação8";
+        }
+    }
+
     public function getPositionBot() {
         //Buscar posição do bot
+    }
+
+    public function checkMovBot($position) {
+        $connection = $this->conectaDB();
+
+        try {
+            $stmt = $connection->prepare("SELECT Play FROM bot_plays WHERE Play = :position");
+            $stmt->bindValue(':position', $position);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            return $result;
+        } catch (PDOException $error) {
+            error_log($error->getMessage());
+            echo "Erro na solicitação";
+            return false;
+        }
+    }
+
+    public function botCheckShotQuantity() {
+        $connection = $this->conectaDB();
+
+        try {
+            $stmt = $connection->prepare("SELECT COUNT(*) FROM bot_plays WHERE Play = 'especial'");
+            $stmt->execute();
+            $quantity = $stmt->fetchColumn();
+            
+            return $quantity;
+        } catch (PDOException $error) {
+            error_log($error->getMessage());
+            echo "Erro na solicitação";
+            return false;
+        } 
     }
 
     public function removePositionBot($position) {
