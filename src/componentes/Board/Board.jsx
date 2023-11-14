@@ -51,9 +51,27 @@ function GameGride() {
 
   const [gridItems, setGridItems] = useState(initialGridItems);
   const [userOptShipsPosition, setUserOptShipsPosition] = useState([]);
-  const [position, setPosition] = useState(0);
+  const [position, setPosition] = useState('');
+  const [column, setColumn] = useState('');
+  const [row, setRow] = useState('');
   const [ship, setShip] = useState(0);
+  const [remainingShips, setRemainingShips] = useState(ships.map(ship => ship.quantity));
 
+
+
+  const handleColumnChange = (event) => {
+    setColumn(event.target.value);
+    updatePosition(event.target.value, row);
+  };
+
+  const handleRowChange = (event) => {
+    setRow(event.target.value);
+    updatePosition(column, event.target.value);
+  };
+  const updatePosition = (columnValue, rowValue) => {
+    const newPosition = `${columnValue}${rowValue}`;
+    setPosition(newPosition);
+  };
   // Aqui definimos as posições que o usuario escolheu, que serão enviadas ao back.
   const setUserOptPosition = (ship, positionShip) => {
     const userOpt = { id: ship.id, position: [] };
@@ -123,11 +141,12 @@ function GameGride() {
     const updatedGridItems = [...gridItems];
     let { sizeShip: shipSize, quantity: shipQuantity, content: shipContent } = ships[shipNumber];
     let cellsRemoved = verifyCellRemoved(positionShip, updatedGridItems);
-    if (checkPosition(positionShip, shipSize) && shipQuantity > 0) {
-      //Diminuimos o numero de celulas com base na posição do grid e dos navios já setados.
+
+    if (checkPosition(positionShip, shipSize) && shipQuantity > 0 && remainingShips[shipNumber] > 0) {
+      // Diminuímos o número de células com base na posição do grid e dos navios já setados.
       positionShip = positionShip - cellsRemoved;
 
-      //Nas posições do usuario somamos as posições removidas novamente, pois não podemos ter alterações nas posições que vão para o back.
+      // Nas posições do usuário, somamos as posições removidas novamente, pois não podemos ter alterações nas posições que vão para o back.
       setUserOptPosition(ships[shipNumber], positionShip + cellsRemoved);
 
       if (shipSize > 1) {
@@ -136,18 +155,23 @@ function GameGride() {
 
       updatedGridItems[positionShip].content = shipContent;
       updatedGridItems[positionShip].sizeShip = shipSize;
-      ships.quantity--;
-    } else {
-      console.log("Valor não disponivel");
-    }
 
-    setGridItems(updatedGridItems);
+      // Atualize a quantidade restante de navios
+      let updatedRemainingShips = [...remainingShips];
+      updatedRemainingShips[shipNumber] = Math.max(0, updatedRemainingShips[shipNumber] - 1);
+      setRemainingShips(updatedRemainingShips);
+
+      setGridItems(updatedGridItems);
+    } else {
+      console.log("Valor não disponível ou limite de navios excedido");
+    }
   };
 
-  const letras10 = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-  const letras15 = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'k', 'l', 'm', 'n', 'o'];
-  const num10 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-  const num15 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+
+  const letras10 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  const letras15 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+  const num10 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  const num15 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
 
   let letras;
   if (numRows === 10) {
@@ -162,6 +186,7 @@ function GameGride() {
   } else if (numCols === 15) {
     num = num15;
   }
+
 
   return (
     <div className={styles.board_container}>
@@ -207,20 +232,31 @@ function GameGride() {
       </div>
 
       <div>
-        <div>
-          <label>Posição</label>
-          <input type='number' onChange={(event) => Number(setPosition(event.target.value))}></input>
-        </div>
-        <div>
+        <div style={{ border: "1px solid red", display: 'flex', flexDirection: "column", margin: "10px", padding: "10px" }}>
+          <label>coluna</label>
+          <input type='text' onChange={handleRowChange} ></input>
+          <label>linha</label>
+          <input type='text' onChange={handleColumnChange}></input>
+
           <label>Navio</label>
-          <input type='number' onChange={(event) => Number(setShip(event.target.value))}></input>
+          <select value={ship} onChange={(event) => setShip(Number(event.target.value))}>
+            {[0, 1, 2, 3, 4].map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </select>
+          {remainingShips.map((quantity, index) => (
+            <label key={index}>{`Quantidade do navio ${index}: ${quantity}`}</label>
+          ))}
+
+          <button onClick={() => shipsPosition(ship, Number(position))}>Adicionar navio</button>
         </div>
-
-
-        <button onClick={() => shipsPosition(ship, Number(position))}>Teste</button>
       </div>
     </div>
   );
+
 }
+
 
 export default GameGride;
