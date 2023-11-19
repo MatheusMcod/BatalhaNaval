@@ -231,27 +231,57 @@ function GameGride() {
       </div>
 
       <div>
-        <div style={{ border: "1px solid red", display: 'flex', flexDirection: "column", margin: "10px", padding: "10px" }}>
-          <label>coluna</label>
-          <input type='text' onChange={handleRowChange} ></input>
-          <label>linha</label>
-          <input type='text' onChange={handleColumnChange}></input>
+        <div className={styles.container}>
+          <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Coluna</label>
+          <input
+            type='text'
+            onChange={handleRowChange}
+            style={{ padding: "8px", marginBottom: "10px", border: "1px solid #ccc", borderRadius: "4px" }}
+          />
 
-          <label>Navio</label>
-          <select value={ship} onChange={(event) => setShip(Number(event.target.value))}>
+          <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Linha</label>
+          <input
+            type='text'
+            onChange={handleColumnChange}
+            style={{ padding: "8px", marginBottom: "10px", border: "1px solid #ccc", borderRadius: "4px" }}
+          />
+
+          <label style={{ marginBottom: "5px", fontWeight: "bold" }}>Navio</label>
+          <select
+            value={ship}
+            onChange={(event) => setShip(Number(event.target.value))}
+            style={{ padding: "8px", marginBottom: "10px", border: "1px solid #ccc", borderRadius: "4px" }}
+          >
             {[0, 1, 2, 3].map((value) => (
               <option key={value} value={value}>
                 {value}
               </option>
             ))}
           </select>
+
           {remainingShips.map((quantity, index) => (
-            <label key={index}>{`Quantidade do navio ${index}: ${quantity}`}</label>
+            <label key={index} style={{ marginBottom: "5px" }}>{`Quantidade do navio ${index}: ${quantity}`}</label>
           ))}
 
-          <button onClick={() => shipsPosition(ship, Number(position))}>Adicionar navio</button>
+          <button
+            className={styles.btn}
+            onClick={() => shipsPosition(ship, Number(position))}
+          >
+            Adicionar navio
+          </button>
+          {/* Concluído button */}
+          <button
+            className={styles.con}
+            onClick={() => handleConcluidoClick()}
+          >
+            Concluído
+          </button>
         </div>
+
       </div>
+
+
+
     </div>
   );
 

@@ -5,7 +5,7 @@ import Header from "../componentes/Header/Header";
 function ChooseDifficulty(){
     return(
         <>
-         <Header/>
+         {/* <Header/> */}
          <Wdifficulty/>
         </>
     );
