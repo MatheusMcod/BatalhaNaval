@@ -26,7 +26,7 @@ class GameModelBot extends CreateConnection {
         } catch (PDOException $error) {
             $connection->rollBack();
             error_log($error->getMessage());
-            echo "Erro na solicitação";
+            echo "Erro na solicitação1";
         }
     }
 
@@ -41,13 +41,118 @@ class GameModelBot extends CreateConnection {
             $stmt->execute();
         } catch (PDOException $error) {
             error_log($error->getMessage());
-            echo "Erro na solicitação8";
+            echo "Erro na solicitação2";
+        }
+    }
+
+    public function registerHitShips($ship, $position) {
+        $connection = $this->conectaDB();
+
+        try {
+            $stmt = $connection->prepare("INSERT INTO hitships(id, name, position, size) VALUES (:id, :name, :position, :size)");
+            $stmt->bindValue(':id', $ship["shipID"]);
+            $stmt->bindValue(':name', $ship["name"]);
+            $stmt->bindValue(':position', $position);
+            $stmt->bindValue(':size', $ship["shipSize"]);
+            $stmt->execute();
+
+            return $connection->lastInsertId();
+        } catch (PDOException $error) {
+            error_log($error->getMessage());
+            echo "Erro na solicitação3";
+            return false;
+        }
+    }
+
+    public function registerAdjacentPositions($key) {
+        $connection = $this->conectaDB();
+        $adjacentePositions = [[-1,-2,-3,-4],[1,2,3,4],[-10,-10,-10,-10],[10,10,10,10]];
+
+        try {
+            $connection->beginTransaction();
+
+            foreach ($adjacentePositions as $adjacent) {
+                $stmt = $connection->prepare("INSERT INTO hitsadjacents(value1, value2, value3, value4, shipID) VALUES (:value1, :value2, :value3, :value4, :shipID)");
+                $stmt->bindValue(':value1', $adjacent[0]);
+                $stmt->bindValue(':value2', $adjacent[1]);
+                $stmt->bindValue(':value3', $adjacent[2]);
+                $stmt->bindValue(':value4', $adjacent[3]);
+                $stmt->bindValue(':shipID', $key);
+                $stmt->execute();
+            }
+
+            $connection->commit();
+        } catch (PDOException $error) {
+            $connection->rollBack();
+            error_log($error->getMessage());
+            echo "Erro na solicitação4";
         }
     }
 
     public function getPositionBot() {
         //Buscar posição do bot
     }
+
+    public function checkHitShipExist($id){
+        $connection = $this->conectaDB();
+
+        try {
+            $sql = "SELECT id, size FROM hitships where id = :id";
+            $stmt = $connection->prepare($sql);
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $resultado;
+        } catch (PDOException $error) {
+            error_log($error->getMessage());
+            echo "Erro na solicitação5";
+            return false;
+        }    
+    }
+    
+    public function checkHitShips() {
+        $connection = $this->conectaDB();
+
+        try {
+            $sql = "SELECT * FROM hitships ORDER BY id ASC LIMIT 1";
+            $stmt = $connection->query($sql);
+
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $resultado;
+        } catch (PDOException $error) {
+            error_log($error->getMessage());
+            echo "Erro na solicitação6";
+            return false;
+        }
+    }
+
+    public function checkAdjacentePositions() {
+        $connection = $this->conectaDB();
+
+        try {
+            $sql = "SELECT id FROM hitships ORDER BY id ASC LIMIT 1";
+            $stmt = $connection->query($sql);
+            $hitship = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($hitship != false) {
+                $hitshipId = $hitship['id'];
+                $sql = "SELECT * FROM hitsadjacents WHERE shipID = :hitshipId";
+                $stmt = $connection->prepare($sql);
+                $stmt->bindValue(':hitshipId', $hitshipId, PDO::PARAM_INT);
+                $stmt->execute();
+
+                $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                return $resultados;
+            } else {
+                return false;
+            }
+        } catch (PDOException $error) {
+            error_log($error->getMessage());
+            echo "Erro na solicitação de checkAdjacentePositions";
+            return false;
+        }
+    }
+    
 
     public function checkMovBot($position) {
         $connection = $this->conectaDB();
@@ -61,24 +166,60 @@ class GameModelBot extends CreateConnection {
             return $result;
         } catch (PDOException $error) {
             error_log($error->getMessage());
-            echo "Erro na solicitação";
+            echo "Erro na solicitação8";
             return false;
         }
     }
 
-    public function botCheckShotQuantity() {
+    public function updateHitShipSize($ship) {
         $connection = $this->conectaDB();
 
         try {
-            $stmt = $connection->prepare("SELECT COUNT(*) FROM bot_plays WHERE Play = 'especial'");
+            $stmt = $connection->prepare("UPDATE hitships SET size = :size WHERE id = :id");
+            $stmt->bindValue(':size', ($ship["size"]-1));
+            $stmt->bindValue(':id', $ship["id"]);
             $stmt->execute();
-            $quantity = $stmt->fetchColumn();
             
-            return $quantity;
         } catch (PDOException $error) {
             error_log($error->getMessage());
-            echo "Erro na solicitação";
-            return false;
+            echo "Erro na solicitação10";
+        }
+    }
+
+    public function removeShipHit($id) {
+        $connection = $this->conectaDB();
+
+        try {
+            $connection->beginTransaction();
+
+            $stmt = $connection->prepare("DELETE FROM hitsadjacents WHERE shipID = :id");
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $stmt2 = $connection->prepare("DELETE FROM hitships WHERE id = :id");
+            $stmt2->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt2->execute();
+
+            $connection->commit();
+        } catch (PDOException $error) {
+            $connection->rollBack();
+            error_log($error->getMessage());
+            echo "Erro na solicitação11";
+        }
+    }
+
+    public function removeAdjacentePositions($id, $value, $column) {
+        $connection = $this->conectaDB();
+
+        try {
+            $stmt = $connection->prepare("UPDATE hitsadjacents SET $column = NULL  WHERE id = :id AND $column = :valueColumn");
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->bindValue(':valueColumn', $value);
+            $stmt->execute();
+        
+        } catch (PDOException $error) {
+            error_log($error->getMessage());
+            echo "Erro na solicitação12";
         } 
     }
 
@@ -98,7 +239,7 @@ class GameModelBot extends CreateConnection {
                 
         } catch (PDOException $error) {
             error_log($error->getMessage());
-            echo "Erro na solicitação";
+            echo "Erro na solicitação13";
             return false;
         }
     }

@@ -9,8 +9,9 @@ class GameModelUser extends CreateConnection {
             $connection->beginTransaction();
 
             foreach($ships as $ship) {
-                $stmt = $connection->prepare("INSERT INTO usershipsnames (name) VALUES (:shipName)");
+                $stmt = $connection->prepare("INSERT INTO usershipsnames (name, shipSize) VALUES (:shipName, :shipSize)");
                 $stmt->bindValue(':shipName', $ship->name);
+                $stmt->bindValue(':shipSize', $ship->size);
                 $stmt->execute();
                 $shipId = $connection->lastInsertId();
 
@@ -41,6 +42,29 @@ class GameModelUser extends CreateConnection {
             $stmt->execute();
 
             return true;
+        } catch (PDOException $error) {
+            error_log($error->getMessage());
+            echo "Erro na solicitação";
+            return false;
+        }
+    }
+
+    public function getShip($position) {
+        $connection = $this->conectaDB();
+
+        try {
+            $stmt = $connection->prepare("
+                SELECT u.shipID, u.name, u.shipSize
+                FROM usershipsnames u
+                INNER JOIN usershipspositions p ON u.shipID = p.shipName
+                WHERE p.position = :position
+            ");
+            $stmt->bindValue(':position', $position);
+            $stmt->execute();
+
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return $result;
         } catch (PDOException $error) {
             error_log($error->getMessage());
             echo "Erro na solicitação";
