@@ -7,34 +7,32 @@ function GameGride() {
   const [ships] = useState([
     {
       id: 0,
-      sizeShip: 2,
-      quantity: 2,
-      content: <img src={shipsImg.ship1} className={styles.ships_img} id='ship_00'></img>
+      name: "submarinos",
+      size: 2,
+      quantity: 4,
+      content: <img src={shipsImg.ship1} className={styles.ships_img} id='ship_01'></img>
     },
     {
       id: 1,
-      sizeShip: 4,
-      quantity: 1,
-      content: <img src={shipsImg.ship2} className={styles.ships_img} id='ship_01'></img>
+      name: "contratorpedeiros",
+      size: 3,
+      quantity: 3,
+      content: <img src={shipsImg.ship2} className={styles.ships_img} id='ship_02'></img>
     },
     {
       id: 2,
-      sizeShip: 1,
-      quantity: 4,
-      content: <img src={shipsImg.ship3} className={styles.ships_img} id='ship_02'></img>
+      name: "navios-tanque",
+      size: 4,
+      quantity: 2,
+      content: <img src={shipsImg.ship3} className={styles.ships_img} id='ship_03'></img>
     },
     {
       id: 3,
-      sizeShip: 3,
+      name: "porta-aviões",
+      size: 5,
       quantity: 1,
-      content: <img src={shipsImg.ship4} className={styles.ships_img} id='ship_03'></img>
-    },
-    {
-      id: 4,
-      sizeShip: 3,
-      quantity: 2,
-      content: <img src={shipsImg.ship5} className={styles.ships_img} id='ship_04'></img>
-    },
+      content: <img src={shipsImg.ship4} className={styles.ships_img} id='ship_04'></img>
+    }
   ]);
   /*
   O grid e definido inicialmente de forma dinâmica, Iremos manipular ele em tempo real na tela. Os elementos são inicialmente nulos, a ideia se baseia em buscar o elemento de inserção da imagem do navio, sequente mente adaptar o grid ao tamanho correspondente do navio removendo e inserindo divs de forma dinâmica no grid.
@@ -110,14 +108,15 @@ function GameGride() {
 
   //Defimos a classe responsavel por expandir a div do navio;
   const setClass = (sizeShip) => {
-    if (sizeShip == 1) {
-      return styles.ship_size1;
-    } else if (sizeShip == 2) {
+
+    if (sizeShip == 2) {
       return styles.ship_size2;
     } else if (sizeShip == 3) {
       return styles.ship_size3;
     } else if (sizeShip == 4) {
       return styles.ship_size4;
+    } else if (sizeShip == 5) {
+      return styles.ship_size5;
     }
   }
 
@@ -139,7 +138,7 @@ function GameGride() {
 
   const shipsPosition = (shipNumber, positionShip) => {
     const updatedGridItems = [...gridItems];
-    let { sizeShip: shipSize, quantity: shipQuantity, content: shipContent } = ships[shipNumber];
+    let { size: shipSize, quantity: shipQuantity, content: shipContent } = ships[shipNumber];
     let cellsRemoved = verifyCellRemoved(positionShip, updatedGridItems);
 
     if (checkPosition(positionShip, shipSize) && shipQuantity > 0 && remainingShips[shipNumber] > 0) {
@@ -240,7 +239,7 @@ function GameGride() {
 
           <label>Navio</label>
           <select value={ship} onChange={(event) => setShip(Number(event.target.value))}>
-            {[0, 1, 2, 3, 4].map((value) => (
+            {[0, 1, 2, 3].map((value) => (
               <option key={value} value={value}>
                 {value}
               </option>
