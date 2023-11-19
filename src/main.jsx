@@ -8,29 +8,34 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Home from './routes/Home.jsx'
 import ChooseDifficulty from './routes/ChooseDifficulty'
 import SelectionBoard from './routes/SelectionBoard.jsx'
+import ScreenBoard from './routes/Screen.jsx'
 
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element:<Home/>
+    element: <Home />
   },
   {
     path: "/Difficulty",
-    element: <ChooseDifficulty/>
+    element: <ChooseDifficulty />
   },
   {
     path: "/Board",
-    element:<SelectionBoard/>
-  }
+    element: <SelectionBoard />
+  }, 
+  {
+    path:"/screen",
+    element:<ScreenBoard/>
+  },
 ])
 
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-        <App/>
-        <RouterProvider router = {router} />
+    <App />
+    <RouterProvider router={router} />
 
   </React.StrictMode>,
 )
