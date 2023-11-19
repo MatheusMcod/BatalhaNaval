@@ -15,9 +15,7 @@ body{
 }
   
 .sub_container{
-
     padding: 10px;
-
 }
 
 .DivRow{
@@ -69,8 +67,6 @@ body{
     font-weight: 700;
 }
 
-
-
 .grid_item {
     display: flex;
     justify-content: center; /* Centraliza horizontalmente */
@@ -81,10 +77,6 @@ body{
 .ships_img {
     width: 98%;
     height: 80%;
-}
-
-.ship_size1 {
-    grid-column: span 1;
 }
 
 .ship_size2 {
@@ -98,6 +90,11 @@ body{
 .ship_size4 {
     grid-column: span 4;
 }
+
+.ship_size5 {
+    grid-column: span 5;
+}
+
 
 
 
