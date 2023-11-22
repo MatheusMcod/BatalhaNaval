@@ -95,6 +95,35 @@ body{
     grid-column: span 5;
 }
 
+.container{
+    display: flex;
+    border: 1px solid rgb(14, 14, 14);
+    flex-Direction: column;
+    margin: 10px;
+    padding: 10px;
+    border-Radius:8px;
+    box-Shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn{
+    padding:10px;
+    background-Color: #4CAF50;
+    color: "white";
+    border: none;
+    border-Radius: 4px;
+    cursor:pointer;
+}
+
+.con{
+    margin-top: 10px;
+    padding:10px;
+    background-Color: #4cafad;
+    color: "white";
+    border: none;
+    border-Radius: 4px;
+    cursor:pointer;
+}
+
 
 
 
