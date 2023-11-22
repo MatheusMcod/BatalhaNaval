@@ -11,19 +11,38 @@ class EasyBot {
     }
 
     public function makeMove($gridSize) {
-        do {
-            $position = rand(0, $gridSize);
-            $checkMoveExist = $this->modelBot->checkMovBot($position);
-        } while ($checkMoveExist != false);
-        
-        $tipeShot = ["normal", "especial"];
-        $tipeShot = $this->modelBot->checkBotShotQuantity() < 2 ? $tipeShot[rand(0, 1)] : $tipeShot[0];
-        $move = ["move" => $position, "shot" => $tipeShot];
-    
-        $adjacentPositions = [0, -11, -10, -9, -1, 1, 9, 10, 11];
-        if ($tipeShot == "especial") {
-            $moves = array();
+        session_start();
+        $moves = array();
+        if (!isset($_SESSION['especial'])) {
+            $_SESSION['especial'] = 2;
+        }
+        $typeShot = ["normal", "especial"];
+        $typeShot = $_SESSION['especial'] != 0 ? $typeShot[rand(0, 1)] : $typeShot[0];
+        $move = ["shot" => $typeShot, "move" => 0, "target" => "miss"];
+
+        if ($typeShot == "normal") {
+            for ($i=0; $i < 3; $i++) {
+                do {
+                    $position = rand(0, $gridSize);
+                    $checkMoveExist = $this->modelBot->checkMovBot($position);
+                    $checkMoveCarried = in_array($position, $moves);
+                } while ($checkMoveExist != false || $checkMoveCarried);
+                $move["move"] = $position;
+
+                $move["target"] = $this->modelUser->removePositionUser($move["move"]) ? "hit" : "miss";
+                $this->modelBot->registerMovBot($move);
+                $moves[] = $move;
+            }
+        } else {
+            $adjacentPositions = [0, -11, -10, -9, -1, 1, 9, 10, 11];
             foreach ($adjacentPositions as $adjacent) {
+                do {
+                    $position = rand(0, $gridSize);
+                    $checkMoveExist = $this->modelBot->checkMovBot($position);
+                    $checkMoveCarried = in_array($position, $move);
+                } while ($checkMoveExist != false || $checkMoveCarried);
+                $move["move"] = $position;
+
                 if ($position % 10 == 0 && ($adjacent == -11 || $adjacent == -1 || $adjacent == 9)) {
                     continue;
                 }
@@ -37,13 +56,13 @@ class EasyBot {
                     $this->modelBot->registerMovBot($moveParam);
                     $moves[] = $moveParam;
                 }
-            }
-            return $moves;
-        } else {
-            $move["target"] = $this->modelUser->removePositionUser($position) ? "hit" : "miss";
-            $this->modelBot->registerMovBot($move);
-            return $move;
+            }   
         }
+        if ($_SESSION["especial"] != 0) {
+            $_SESSION["especial"] -= 1;
+        }
+
+        return $moves;     
     }
 }
 
@@ -57,84 +76,77 @@ class MediumBot{
     }
 
     public function makeMove($gridSize) {
+        session_start();
         $adjacentPositions = array();
         $moves = array();
-        $lastPosition = $this->modelBot->checkHitShips();
-
-        session_start();
+        $lastPosition = isset($_SESSION['hitships']);
+        $_SESSION['adjacentPositions'] = ["left" => [-1,-2,-3,-4],"rigth" => [1,2,3,4], "top" => [-10,-10,-10,-10], "bottom" => [10,10,10,10]];
+        
         if (!isset($_SESSION['especial'])) {
             $_SESSION['especial'] = 2;
         }
         $typeShot = ["normal", "especial"];
         $typeShot = $_SESSION['especial'] != 0 ? $typeShot[rand(0, 1)] : $typeShot[0];
-        echo $_SESSION['especial'];
-        $move = ["shot" => $typeShot];
+        $move = ["shot" => $typeShot, "move" => 0, "target" => "miss"];
         if ($typeShot == "normal") {
-            if ($lastPosition != false) {        
-                $adjacents = $this->modelBot->checkAdjacentePositions();
-                if ($adjacents[1]["value1"] != null && $adjacents[2]["value1"] != null && $adjacents[3]["value1"] != null) {
-                    $inicialAdjacents = [$adjacents[1],$adjacents[2],$adjacents[3]];
-                    foreach ($inicialAdjacents as $adjacent) {
-                        print_r($adjacent);
-                        $adjacentPositions[] = $adjacent["value1"];
-                        $this->modelBot->removeAdjacentePositions($adjacent["id"], $adjacent["value1"], "value1");
-                    }
-                } else {
-                    foreach ($adjacents as $adjacent) {
-                        $keys=null;
-                        $val=null;
-                        foreach($adjacent as $key => $value) {
-                            if(!is_null($value)) {
-                                if ($key == "value1" || $key == "value2" || $key == "value3" || $key == "value4") {
-                                    $val = $value;
-                                    $keys = $key; 
-                                    $adjacentPositions[] = $value;
-                                    break;
-                                }
-                            } 
-                        }
-                        $this->modelBot->removeAdjacentePositions($adjacent["id"], $val, $keys);
-                        if (count($adjacentPositions) == 3) {
-                            break;
-                        }
-                    }
-                }
+            if ($lastPosition) {
+                $toRemove = array();
+                foreach ($_SESSION['adjacentPositions'] as $positionKey => $adjacent) {
+                    foreach($adjacent as $valueKey => $value) {
+                            $adjacentPositions[] = $value;
+                            $toRemove[] = ['position' => $positionKey, 'value' => $valueKey];
 
-                for($i=0; $i<3; $i++) {
-                    do {
-                        $position = $lastPosition["position"] + $adjacentPositions[$i];
-                        if ($position % 10 == 0 && $adjacentPositions[$i] == -1 && ($position > $gridSize || $position < 0)) {
-                            $position = rand(0, $gridSize);
-                            $checkMoveExist = $this->modelBot->checkMovBot($position);
-                            $checkMoveCarried = in_array($position, $move);
-                            $checkMoveExist != false and $checkMoveCarried != false ? $valid = false : $valid = true;
-                        } else if ($position % 10 == 9 && $adjacentPositions[$i] == 1) {
-                            $position = rand(0, $gridSize);
-                            $checkMoveExist = $this->modelBot->checkMovBot($position);
-                            $checkMoveCarried = in_array($position, $move);
-                            $checkMoveExist != false and $checkMoveCarried ? $valid = false : $valid = true;
-                        } else if ($this->modelBot->checkMovBot($position) != false) {
-                            $position = rand(0, $gridSize);
-                            $checkMoveExist = $this->modelBot->checkMovBot($position);
-                            $checkMoveCarried = in_array($position, $move);
-                            $checkMoveExist != false and $checkMoveCarried ? $valid = false : $valid = true;
+                            if (count($adjacentPositions) == 3) {
+                                break 2;
+                            }
                         }
+                    } 
+
+                foreach ($toRemove as $keys) {
+                    unset($_SESSION['adjacentPositions'][$keys['position']][$keys['value']]);
+                }
+                
+                for($i=0; $i<3; $i++) {
+                    $valid=false;
+                    $position = $_SESSION['hitships'][0]['move'] + $adjacentPositions[$i];
+                    do {
+                        if ($position > $gridSize || $position < 0 || $this->modelBot->checkMovBot($position) != false || in_array($position, $moves)) {
+                            $position = rand(0, $gridSize);
+                            $checkMoveExist = $this->modelBot->checkMovBot($position);
+                            $checkMoveCarried = in_array($position, $moves);
+                            $checkMoveExist != false || $checkMoveCarried ? $valid = true : $valid = false;
+                        } else if ($position % 10 == 0 && ($adjacentPositions[$i] == -1 || $adjacentPositions[$i] == -2 || $adjacentPositions[$i] == -3 ||$adjacentPositions[$i] == -4)) {
+                            $position = rand(0, $gridSize);
+                            $checkMoveExist = $this->modelBot->checkMovBot($position);
+                            $checkMoveCarried = in_array($position, $moves);
+                            $checkMoveExist != false || $checkMoveCarried ? $valid = true : $valid = false;
+                        } else if ($position % 10 == 9 && ($adjacentPositions[$i] == 1 || $adjacentPositions[$i] == 2 || $adjacentPositions[$i] == 3 || $adjacentPositions[$i] == 4)) {
+                            $position = rand(0, $gridSize);
+                            $checkMoveExist = $this->modelBot->checkMovBot($position);
+                            $checkMoveCarried = in_array($position, $moves);
+                            $checkMoveExist != false || $checkMoveCarried ? $valid = true : $valid = false;
+                        } 
                     } while($valid);
                     $move["move"] = $position;
 
-                    $ship = $this->modelUser->getShip($move["move"]);
-                    $exist = $this->modelBot->checkHitShipExist($ship[0]["shipID"]);
+                    $ship = $this->modelUser->getShip($position);
+                    $exist = isset($_SESSION['hitships']);
                     $move["target"] = count($ship) != 0 ? "hit" : "miss";
                     if ($move["target"] == "hit") {
-                        if($exist != false) {
-                            if ($exist["size"] == 0) {
-                                $this->modelBot->removeShipHit($exist["id"]);
+                        if($exist) {
+                            if ($_SESSION['hitships'][0]["shipSize"] == 0) {
+                                array_shift($_SESSION['hitships']);
+                                if(count($_SESSION['hitships']) == 0) {
+                                    unset($_SESSION['hitships']);
+                                    unset($_SESSION['adjacentPositions']);
+                                    $_SESSION['adjacentPositions'] = ["left" => [1,2,3,4],"rigth" => [-1,-2,-3,-4], "top" => [-10,-10,-10,-10], "bottom" => [10,10,10,10]];
+                                }
                             } else {
-                                $this->modelBot->updateHitShipSize($exist);
+                                $_SESSION['hitships'][0]["shipSize"] -= 1;
                             }
                         } else {
-                            $referenceKey = $this->modelBot->registerHitShips($ship[0], $move["move"]);
-                            $this->modelBot->registerAdjacentPositions($referenceKey);
+                            $ship["move"] = $position;
+                            $_SESSION['hitships'][] = $ship;
                         }
                     }
                     $this->modelBot->registerMovBot($move);
@@ -146,23 +158,28 @@ class MediumBot{
                     do {
                         $position = rand(0, $gridSize);
                         $checkMoveExist = $this->modelBot->checkMovBot($position);
-                        $checkMoveExist = in_array($position, $move);
-                    } while ($checkMoveExist != false);
+                        $checkMoveCarried = in_array($position, $moves);
+                    } while ($checkMoveExist != false || $checkMoveCarried);
                     $move["move"] = $position;
 
-                    $ship = $this->modelUser->getShip($move["move"]);
-                    $exist = $this->modelBot->checkHitShipExist($ship[0]["shipID"]);
+                    $ship = $this->modelUser->getShip($position);
+                    $exist = isset($_SESSION['hitships']);
                     $move["target"] = count($ship) != 0 ? "hit" : "miss";
                     if ($move["target"] == "hit") {
-                        if($exist != false) {
-                            if ($exist["size"] == 0) {
-                                $this->modelBot->removeShipHit($exist["id"]);
+                        if($exist) {
+                            if ($_SESSION['hitships'][0]["shipSize"] == 0) {
+                                array_shift($_SESSION['hitships']);
+                                if(count($_SESSION['hitships']) == 0) {
+                                    unset($_SESSION['hitships']);
+                                    unset($_SESSION['adjacentPositions']);
+                                    $_SESSION['adjacentPositions'] = ["left" => [1,2,3,4],"rigth" => [-1,-2,-3,-4], "top" => [-10,-10,-10,-10], "bottom" => [10,10,10,10]];
+                                }
                             } else {
-                                $this->modelBot->updateHitShipSize($exist);
+                                $_SESSION['hitships'][0]["shipSize"] -= 1;
                             }
                         } else {
-                            $referenceKey = $this->modelBot->registerHitShips($ship[0], $move["move"]);
-                            $this->modelBot->registerAdjacentPositions($referenceKey);
+                            $ship["move"] = $position;
+                            $_SESSION['hitships'][] = $ship;
                         }
                     }
                     $this->modelBot->registerMovBot($move);
@@ -178,8 +195,8 @@ class MediumBot{
             do {
                 $position = rand(0, $gridSize);
                 $checkMoveExist = $this->modelBot->checkMovBot($position);
-                $checkMoveExist = in_array($position, $move);
-            } while ($checkMoveExist != false);
+                $checkMoveCarried = in_array($position, $move);
+            } while ($checkMoveExist != false || $checkMoveCarried);
             $move["move"] = $position;
 
             $moves = array();
@@ -194,27 +211,33 @@ class MediumBot{
                 $moveParam["move"] = $position + $adjacent; 
                 if ($moveParam["move"] >= 0 && $moveParam["move"] < $gridSize) {
                     $ship = $this->modelUser->getShip($moveParam["move"]);
-                    $exist = $this->modelBot->checkHitShipExist($ship[0]["shipID"]);
+                    $exist = isset($_SESSION['hitships']);
                     $moveParam["target"] = count($ship) != 0 ? "hit" : "miss";
                     if ($moveParam["target"] == "hit") {
-                        if($exist != false) {
-                            if ($exist["size"] == 0) {
-                                $this->modelBot->removeShipHit($exist["id"]);
+                        if($exist) {
+                            if ($_SESSION['hitships'][0]["shipSize"] == 0) {
+                                array_shift($_SESSION['hitships']);
+                                if(count($_SESSION['hitships']) == 0) {
+                                    unset($_SESSION['hitships']);
+                                    unset($_SESSION['adjacentPositions']);
+                                    $_SESSION['adjacentPositions'] = ["left" => [1,2,3,4],"rigth" => [-1,-2,-3,-4], "top" => [-10,-10,-10,-10], "bottom" => [10,10,10,10]];
+                                }
                             } else {
-                                $this->modelBot->updateHitShipSize($exist);
+                                $_SESSION['hitships'][0]["shipSize"] -= 1;
                             }
                         } else {
-                            $referenceKey = $this->modelBot->registerHitShips($ship[0], $moveParam["move"]);
-                            $this->modelBot->registerAdjacentPositions($referenceKey);
+                            $ship["move"] = $position;
+                            $_SESSION['hitships'][] = $ship;
                         }
                     }
                     $this->modelBot->registerMovBot($moveParam);
                     $this->modelUser->removePositionUser($moveParam["move"]);
-                    if ($_SESSION["especial"] != 0) {
-                        $_SESSION["especial"] -= 1;
-                    }
+                    
                     $moves[] = $moveParam;
                 }
+            }
+            if ($_SESSION["especial"] != 0) {
+                $_SESSION["especial"] -= 1;
             }
             return $moves;
         }
@@ -222,7 +245,6 @@ class MediumBot{
 }
 
 class HardBot {
-    /*
     private $modelBot;
     private $modelUser;
 
@@ -232,35 +254,67 @@ class HardBot {
     }
 
     public function makeMove($gridSize) {
-        $adjacentPositions = [0, -11, -10, -9, -1, 1, 9, 10, 11];
+        session_start();
+        $moves = array();
+        if (!isset($_SESSION['especial'])) {
+            $_SESSION['especial'] = 2;
+        }
+        $typeShot = ["normal", "especial"];
+        $typeShot = $_SESSION['especial'] != 0 ? $typeShot[/*rand(0, 1)*/0] : $typeShot[0];
+        $move = ["shot" => $typeShot, "move" => 0, "target" => "miss"];
 
-        do {
-            $lastPosition = $this->modelBot->checkLastMove();
-            if ($lastPosition["Target"] == "hit" && $lastPosition["Tipe_Shot"] != "especial") {
-                do {
-                    $adjacent = $adjacentPositions[rand(0,count($adjacentPositions))];
-                    $position = $lastPosition["Play"] + $adjacent;
-                    if ($position % 10 == 0 && ($adjacent == -11 || $adjacent == -1 || $adjacent == 9)) {
-                        $positionValid = false;
-                    } else if ($position % 10 == 9 && ($adjacent == 11 || $adjacent == 1 || $adjacent == -9)) {
-                        $positionValid = false; 
+        if ($typeShot == "normal") {
+            for ($i=0; $i < 3; $i++) {
+                if (!isset($_SESSION['nextPosition'])) {
+                    do {
+                        $position = rand(0, $gridSize);
+                        $checkMoveExist = $this->modelBot->checkMovBot($position);
+                        $checkMoveCarried = in_array($position, $moves);
+                    } while ($checkMoveExist != false || $checkMoveCarried);
+                } else {
+                    $position = $_SESSION['nextPosition'][0];
+                }
+                $move["move"] = $position;
+
+                $ship = $this->modelUser->getShip($position);
+                $exist = isset($_SESSION['hitships']);
+                $move["target"] = count($ship) != 0 ? "hit" : "miss";
+                if ($move["target"] == "hit") {
+                    if($exist) {
+                        if ($_SESSION['hitships'][0]["shipSize"] == 0) {
+                            array_shift($_SESSION['hitships']);
+                            if(count($_SESSION['hitships']) == 0) {
+                                unset($_SESSION['hitships']);
+                            }
+                        } else {
+                            $_SESSION['hitships'][0]["shipSize"] -= 1;
+                        }
                     } else {
-                        $positionValid = true;
+                        $ship[0]["move"] = $position;
+                        $_SESSION['hitships'][] = $ship;
                     }
-                } while(!$positionValid);
-            } else {
-                $position = rand(0, $gridSize);
-            };
-            $checkMoveExist = $this->modelBot->checkMovBot($position);
-        } while ($checkMoveExist != false);
+                }
+                $this->modelBot->registerMovBot($move);
+                $this->modelUser->removePositionUser($move["move"]);
 
-        $tipeShot = ["normal", "especial"];
-        $tipeShot = $this->modelBot->checkBotShotQuantity() < 2 ? $tipeShot[rand(0, 1)] : $tipeShot[0];
-        $move = ["move" => $position, "shot" => $tipeShot];
-        
-        if ($tipeShot == "especial") {
-            $moves = array();
+                if (!isset($_SESSION['nextPosition'])) {
+                    $_SESSION['nextPosition'] = $this->modelUser->getPositionsShip($_SESSION['hitships'][0]['shipID']);
+                } else if (isset($_SESSION['nextPosition'])) {
+                    unset($_SESSION['nextPosition'][$move["move"]]); 
+                }
+                
+                $moves[] = $move;
+            }
+        } else {
+            $adjacentPositions = [0, -11, -10, -9, -1, 1, 9, 10, 11];
             foreach ($adjacentPositions as $adjacent) {
+                do {
+                    $position = rand(0, $gridSize);
+                    $checkMoveExist = $this->modelBot->checkMovBot($position);
+                    $checkMoveCarried = in_array($position, $move);
+                } while ($checkMoveExist != false || $checkMoveCarried);
+                $move["move"] = $position;
+
                 if ($position % 10 == 0 && ($adjacent == -11 || $adjacent == -1 || $adjacent == 9)) {
                     continue;
                 }
@@ -270,17 +324,41 @@ class HardBot {
                 $moveParam = $move;
                 $moveParam["move"] += $adjacent; 
                 if ($moveParam["move"] >= 0 && $moveParam["move"] < $gridSize) {
+                    $ship = $this->modelUser->getShip($moveParam["move"]);
+                    $exist = isset($_SESSION['hitships']);
+                    $moveParam["target"] = count($ship) != 0 ? "hit" : "miss";
+                    if ($moveParam["target"] == "hit") {
+                        if($exist) {
+                            if ($_SESSION['hitships'][0]["shipSize"] == 0) {
+                                array_shift($_SESSION['hitships']);
+                                if(count($_SESSION['hitships']) == 0) {
+                                    unset($_SESSION['hitships']);
+                                }
+                            } else {
+                                $_SESSION['hitships'][0]["shipSize"] -= 1;
+                            }
+                        } else {
+                            $ship[0]["move"] = $position;
+                            $_SESSION['hitships'][] = $ship;
+                        }
+                    }
                     $this->modelBot->registerMovBot($moveParam);
-                    $moveParam["target"] = $this->modelUser->removePositionUser($moveParam["move"]) ? "hit" : "miss";
+                    $this->modelUser->removePositionUser($moveParam["move"]);
+                    
+                    if ($exist && !isset($_SESSION['nextPosition'])) {
+                        $_SESSION['nextPosition'] = $this->modelUser->getPositionsShip($_SESSION['hitships'][0]['shipID']);
+                    } else if ($exist && isset($_SESSION['nextPosition'])) {
+                        unset($_SESSION['nextPosition'][$move["move"]]);
+                    }
+
                     $moves[] = $moveParam;
                 }
-            }
-            return $moves;
-        } else {
-            $move["target"] = $this->modelUser->removePositionUser($position) ? "hit" : "miss";
-            $this->modelBot->registerMovBot($move);
-            return $move;
+            }   
         }
+        if ($_SESSION["especial"] != 0) {
+            $_SESSION["especial"] -= 1;
+        }
+        
+        return $moves;     
     }
-    */
 }
