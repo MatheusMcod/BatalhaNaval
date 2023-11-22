@@ -72,6 +72,24 @@ class GameModelUser extends CreateConnection {
         }
     }
 
+    public function getPositionsShip($id) {
+        $connection = $this->conectaDB();
+
+        try {
+            $stmt = $connection->prepare("SELECT position FROM usershipspositions WHERE shipName = :id");
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+            
+            print_r($result);
+            return $result;
+        } catch (PDOException $error) {
+            error_log($error->getMessage());
+            echo "Erro na solicitação";
+            return false;
+        }
+    }
+
     public function userCheckMovExist($position) {
         $connection = $this->conectaDB();
 

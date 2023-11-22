@@ -101,8 +101,8 @@ class GameModelBot extends CreateConnection {
             $stmt = $connection->prepare($sql);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
 
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $resultado;
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result;
         } catch (PDOException $error) {
             error_log($error->getMessage());
             echo "Erro na solicitação5";
@@ -110,6 +110,7 @@ class GameModelBot extends CreateConnection {
         }    
     }
     
+    /*
     public function checkHitShips() {
         $connection = $this->conectaDB();
 
@@ -117,15 +118,18 @@ class GameModelBot extends CreateConnection {
             $sql = "SELECT * FROM hitships ORDER BY id ASC LIMIT 1";
             $stmt = $connection->query($sql);
 
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $resultado;
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            return $result;
         } catch (PDOException $error) {
             error_log($error->getMessage());
             echo "Erro na solicitação6";
             return false;
         }
     }
+    */
 
+    /*
     public function checkAdjacentePositions() {
         $connection = $this->conectaDB();
 
@@ -152,7 +156,7 @@ class GameModelBot extends CreateConnection {
             return false;
         }
     }
-    
+    */
 
     public function checkMovBot($position) {
         $connection = $this->conectaDB();
@@ -171,6 +175,7 @@ class GameModelBot extends CreateConnection {
         }
     }
 
+    /*
     public function updateHitShipSize($ship) {
         $connection = $this->conectaDB();
 
@@ -185,7 +190,9 @@ class GameModelBot extends CreateConnection {
             echo "Erro na solicitação10";
         }
     }
+    */
 
+    /*
     public function removeShipHit($id) {
         $connection = $this->conectaDB();
 
@@ -207,7 +214,9 @@ class GameModelBot extends CreateConnection {
             echo "Erro na solicitação11";
         }
     }
+    */
 
+    /*
     public function removeAdjacentePositions($id, $value, $column) {
         $connection = $this->conectaDB();
 
@@ -222,6 +231,7 @@ class GameModelBot extends CreateConnection {
             echo "Erro na solicitação12";
         } 
     }
+    */
 
     public function removePositionBot($position) {
         $connection = $this->conectaDB();
