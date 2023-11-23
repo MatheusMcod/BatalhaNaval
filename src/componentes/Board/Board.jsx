@@ -70,9 +70,10 @@ function GameGride() {
     const newPosition = `${columnValue}${rowValue}`;
     setPosition(newPosition);
   };
+
   // Aqui definimos as posições que o usuario escolheu, que serão enviadas ao back.
   const setUserOptPosition = (ship, positionShip) => {
-    const userOpt = { id: ship.id, position: [] };
+    const userOpt = { name: ship.name, position: [], size: ship.size};
     let setUserOpt = [...userOptShipsPosition];
     for (let i = 0; i < ship.sizeShip; i++) {
       userOpt.position[i] = positionShip + i;
@@ -270,12 +271,12 @@ function GameGride() {
             Adicionar navio
           </button>
           {/* Concluído button */}
-          <button
-            className={styles.con}
-            onClick={() => handleConcluidoClick()}
-          >
-            Concluído
-          </button>
+            <button
+              className={styles.con}
+              onClick={() => handleConcluidoClick()}
+            >
+              Concluído
+            </button>
         </div>
 
       </div>
