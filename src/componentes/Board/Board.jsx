@@ -2,6 +2,8 @@ import styles from './BoardStyle.module.css'
 import Ships from '../Ships/Ships';
 import shipsImg from '../../Imagens/ShipsImages/ShipsExport';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function GameGride() {
   const [ships] = useState([
@@ -167,6 +169,25 @@ function GameGride() {
     }
   };
 
+  const submitShips = async (event) => {
+    event.preventDefault();
+    let userOpt = [...userOptShipsPosition];
+
+    try {
+      const response = await axios.post('http://batalhanaval', userOpt);
+      const navigate = useNavigate;
+
+      if (response.ok) {
+        navigate("/Screen");
+      } else {
+        throw new Error('Erro na requisição');
+      }
+
+    } catch (error) {
+        console.error('Falha ao enviar os dados:', error);
+    }
+};
+
 
   const letras10 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
   const letras15 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
@@ -271,11 +292,12 @@ function GameGride() {
             Adicionar navio
           </button>
           {/* Concluído button */}
-            <button
-              className={styles.con}
-              onClick={() => handleConcluidoClick()}
-            >
-              Concluído
+          
+          <button
+            className={styles.con}
+            onClick={() => submitShips()}
+          >
+          Concluído
             </button>
         </div>
 

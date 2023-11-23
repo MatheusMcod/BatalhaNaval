@@ -25,7 +25,7 @@ const router = createBrowserRouter([
     element: <SelectionBoard />
   }, 
   {
-    path:"/screen",
+    path:"/Screen",
     element:<ScreenBoard/>
   },
 ])
