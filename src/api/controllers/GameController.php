@@ -4,6 +4,7 @@ require_once '/wamp64/www/project/batalhaNaval/src/api/models/GameModelUser.php'
 require_once '/wamp64/www/project/batalhaNaval/src/api/bot/NavalBotCreat.php';
 require_once '/wamp64/www/project/batalhaNaval/src/api/bot/NavalDifficultyBot.php';
 require_once __DIR__. '/Ships.php';
+require_once '/wamp64/www/project/batalhaNaval/src/api/core/Cors_config.php';
 class GameController {
 
     private $modelBot;
@@ -70,6 +71,30 @@ class GameController {
         }
     }
 
+    public function getBotShips(){
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {    
+            $botShips = $this->modelBot->getAllShips();
+                
+            http_response_code(200);
+            echo json_encode($botShips);    
+        } else {
+            http_response_code(405); 
+            echo json_encode(array('mensagem' => 'Método não permitido.'));
+        }
+    }   
+
+    public function getUserShips() {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {    
+            $userShips = $this->modelUser->getAllShips();
+                
+            http_response_code(200);
+            echo json_encode($userShips); 
+                
+        } else {
+            http_response_code(405); 
+            echo json_encode(array('mensagem' => 'Método não permitido.'));
+        }
+    }
     public function userMove() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = json_decode(file_get_contents('php://input'));

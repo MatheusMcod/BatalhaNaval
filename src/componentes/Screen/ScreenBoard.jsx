@@ -1,6 +1,7 @@
 import styles from '../Screen/ScreenBoard.module.css'
 import Modal from '../modal/modal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 function GameGride() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,7 +21,8 @@ function GameGride() {
     const [userOptShipsPosition, setUserOptShipsPosition] = useState([]);
     const [position, setPosition] = useState(0);
     const [ship, setShip] = useState(0);
-
+    const [botShips, setBotShips] = useState([]);
+    const [userShips, setUserShips] = useState([]);
 
     //Defimos a classe responsavel por expandir a div do navio;
     const setClass = (sizeShip) => {
@@ -54,6 +56,41 @@ function GameGride() {
     } else if (numCols === 15) {
         num = num15;
     }
+
+    const fetchBotShips = async () => {
+        try {
+          const response = await axios.get("http://batalhanaval/bot/allships");
+    
+          if (response.status == 200) {
+            setBotShips(response.data);
+          } else {
+            throw new Error('Erro na requisição');
+          }
+    
+        } catch (error) {
+            console.error('Falha ao enviar os dados:', error);
+        }
+    };
+
+    const fetchUserShips = async () => {
+        try {
+          const response = await axios.get("http://batalhanaval/user/allships");
+    
+          if (response.status == 200) {
+            setUserShips(response.data);
+          } else {
+            throw new Error('Erro na requisição');
+          }
+    
+        } catch (error) {
+            console.error('Falha ao enviar os dados:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchBotShips();
+        fetchUserShips();
+      }, []);
 
     return (
         <>
@@ -142,7 +179,7 @@ function GameGride() {
                 </button>
                 <Modal isOpen={isModalOpen} width={400} height={400} setIsModalClose={() => setIsModalOpen(!isModalOpen)}>
                 {/* seu conteudo */}
-
+                        
 
 
 

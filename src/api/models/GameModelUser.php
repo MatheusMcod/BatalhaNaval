@@ -72,6 +72,25 @@ class GameModelUser extends CreateConnection {
         }
     }
 
+    public function getAllShips() {
+        $connection = $this->conectaDB();
+
+        try {
+            $stmt = $connection->prepare("
+                SELECT u.*, p.position FROM usershipsnames u
+                INNER JOIN usershipspositions p ON u.shipID = p.shipName;
+            ");
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return $result;
+        } catch (PDOException $error) {
+            error_log($error->getMessage());
+            echo "Erro na solicitação";
+            return false;
+        }
+    }
+
     public function getPositionsShip($id) {
         $connection = $this->conectaDB();
 
@@ -81,7 +100,6 @@ class GameModelUser extends CreateConnection {
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
             
-            print_r($result);
             return $result;
         } catch (PDOException $error) {
             error_log($error->getMessage());

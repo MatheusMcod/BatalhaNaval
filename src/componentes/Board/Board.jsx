@@ -177,7 +177,7 @@ function GameGride() {
       const response = await axios.post('http://batalhanaval', userOpt);
       const navigate = useNavigate;
 
-      if (response.ok) {
+      if (response.status == 200) {
         navigate("/Screen");
       } else {
         throw new Error('Erro na requisição');
