@@ -26,17 +26,15 @@ class GameController {
             $botPositions = array();
             $size = $ship->getSize();
         
-            for($i=0; $i < $size; $i++) {
-                do {
-                    $positions = rand(0, 99);
-                } while ($positions + $size > 99 || ($positions + $size)%10 > 9 || $grid[$positions] == -1);
+            do {
+                $positions = rand(0, 99);
+            } while ($positions + $size > 99 || ($positions + $size)%10 > 9 || $grid[$positions] == -1);
 
-                for ($j = 0; $j < $size; $j++) {
-                    $grid[$positions + $j] = -1;
-                }
-
-                $botPositions[] = $positions;
+            for ($i = 0; $i < $size; $i++) {
+                $botPositions[] = $positions+$i;
+                $grid[$positions + $i] = -1;
             }
+            
             $ship->setPositions($botPositions);
         }
         return $ships;
