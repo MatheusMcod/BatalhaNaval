@@ -2,6 +2,8 @@ import styles from './BoardStyle.module.css'
 import Ships from '../Ships/Ships';
 import shipsImg from '../../Imagens/ShipsImages/ShipsExport';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function GameGride() {
   const [ships] = useState([
@@ -70,9 +72,10 @@ function GameGride() {
     const newPosition = `${columnValue}${rowValue}`;
     setPosition(newPosition);
   };
+
   // Aqui definimos as posições que o usuario escolheu, que serão enviadas ao back.
   const setUserOptPosition = (ship, positionShip) => {
-    const userOpt = { id: ship.id, position: [] };
+    const userOpt = { name: ship.name, position: [], size: ship.size};
     let setUserOpt = [...userOptShipsPosition];
     for (let i = 0; i < ship.sizeShip; i++) {
       userOpt.position[i] = positionShip + i;
@@ -165,6 +168,25 @@ function GameGride() {
       console.log("Valor não disponível ou limite de navios excedido");
     }
   };
+
+  const submitShips = async (event) => {
+    event.preventDefault();
+    let userOpt = [...userOptShipsPosition];
+
+    try {
+      const response = await axios.post('http://batalhanaval', userOpt);
+      const navigate = useNavigate;
+
+      if (response.status == 200) {
+        navigate("/Screen");
+      } else {
+        throw new Error('Erro na requisição');
+      }
+
+    } catch (error) {
+        console.error('Falha ao enviar os dados:', error);
+    }
+};
 
 
   const letras10 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -270,12 +292,13 @@ function GameGride() {
             Adicionar navio
           </button>
           {/* Concluído button */}
-          <button
+          
+          <button type="submit"
             className={styles.con}
-            onClick={() => handleConcluidoClick()}
+            onClick={() => submitShips()}
           >
-            Concluído
-          </button>
+          Concluído
+            </button>
         </div>
 
       </div>

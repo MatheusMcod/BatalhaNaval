@@ -1,4 +1,5 @@
-<?php
+<?php  
+
 require_once '/wamp64/www/project/batalhaNaval/src/api/models/GameModelBot.php';
 require_once '/wamp64/www/project/batalhaNaval/src/api/models/GameModelUser.php';
 require_once '/wamp64/www/project/batalhaNaval/src/api/bot/NavalBotCreat.php';
@@ -14,6 +15,20 @@ class GameController {
         $this->modelUser = new GameModelUser;
     }
 
+    private function hasUnitChanged($value1, $value2) {
+        $sum = $value1 + $value2;
+    
+        $lastDigitValue1 = $value1 % 10;
+        $lastDigitValue2 = $value2 % 10;
+        $lastDigitSum = $sum % 10;
+
+        if ($lastDigitValue1 + $lastDigitValue2 >= 10 || $lastDigitSum < $lastDigitValue1 || $lastDigitSum < $lastDigitValue2) {
+            return true;
+        }
+    
+        return false;
+    }
+
     private function randomPositionsBot() {
         $ships = [new Ships('PortaAvioes', 5),
                   new Ships('Navio_Tanque', 4), new Ships('Navio_Tanque', 4),
@@ -25,17 +40,15 @@ class GameController {
             $botPositions = array();
             $size = $ship->getSize();
         
-            for($i=0; $i < $size; $i++) {
-                do {
-                    $positions = rand(0, 99);
-                } while ($positions + $size > 99 || ($positions + $size)%10 > 9 || $grid[$positions] == -1);
+            do {
+                $positions = rand(0, 99);
+            } while ($positions + $size > 99 || $this->hasUnitChanged($positions, $size) || $grid[$positions] == -1);
 
-                for ($j = 0; $j < $size; $j++) {
-                    $grid[$positions + $j] = -1;
-                }
-
-                $botPositions[] = $positions;
+            for ($i = 0; $i < $size; $i++) {
+                $botPositions[] = $positions+$i;
+                $grid[$positions + $i] = -1;
             }
+            
             $ship->setPositions($botPositions);
         }
         return $ships;
@@ -70,13 +83,38 @@ class GameController {
         }
     }
 
+    public function getBotShips(){
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {    
+            $botShips = $this->modelBot->getAllShips();
+                
+            http_response_code(200);
+            echo json_encode($botShips);    
+        } else {
+            http_response_code(405); 
+            echo json_encode(array('mensagem' => 'Método não permitido.'));
+        }
+    }   
+
+    public function getUserShips() {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {    
+            $userShips = $this->modelUser->getAllShips();
+                
+            http_response_code(200);
+            echo json_encode($userShips); 
+                
+        } else {
+            http_response_code(405); 
+            echo json_encode(array('mensagem' => 'Método não permitido.'));
+        }
+    }
+
     public function userMove() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = json_decode(file_get_contents('php://input'));
 
             if ($data) {
-                $move = $data->move;
-                $shot = $data->shotType;
+                $move = $data[0]->move;
+                $shot = $data[0]->shotType;
 
                 if ($shot == "normal") {
                     $response = $this->processNormalUserMove($move, $shot);
