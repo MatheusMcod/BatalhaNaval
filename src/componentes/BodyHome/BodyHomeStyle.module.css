@@ -1,40 +1,57 @@
-.body{
-  width: 400px;
-  height: 300px;
-  border: 2px solid #4f6365;
-  box-shadow: 10px 10px 30px rgb(93, 154, 175);
-  margin: auto;
-  border-radius: 40px 40px 40px 40px;
-  background-color: #b6e7e48f;
-
+.body {
+    width: 400px;
+    height: 300px;
+    border: 2px solid #4f6365;
+    box-shadow: 10px 10px 30px rgb(93, 154, 175);
+    margin: auto;
+    border-radius: 40px 40px 40px 40px;
+    background-color: #b6e7e48f;
 }
 
-.buttonsList{
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.buttonsList {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
-.buttons{
-  margin-top: 55px;
-  font-size:27px;
-  font-family: 'Times New Roman', Times, serif;
-  width:280px;
-  height: 50px;
-  border-radius: 20px 20px 20px 20px;
-  background-color: #74EBD5;
-  background-image: -webkit-linear-gradient(90deg, #74EBD5 0%, #9FACE6 100%);
-  background-image: -moz-linear-gradient(90deg, #74EBD5 0%, #9FACE6 100%);
-  background-image: -o-linear-gradient(90deg, #74EBD5 0%, #9FACE6 100%);
-  background-image: linear-gradient(90deg, #74EBD5 0%, #9FACE6 100%);
+.buttons {
+    margin-top: 55px;
+    font-size: 20px;
+    font-family: "Press Start 2P", cursive;
+    border: 2px solid #4f6365;
+    box-shadow: 10px 10px 30px rgb(93, 154, 175);
+    width: 280px;
+    height: 50px;
+    border-radius: 20px;
+    cursor: pointer;
+    background-color: #74ebd5;
+    background-image: -webkit-linear-gradient(90deg, #74ebd5 0%, #9face6 100%);
+    background-image: -moz-linear-gradient(90deg, #74ebd5 0%, #9face6 100%);
+    background-image: -o-linear-gradient(90deg, #74ebd5 0%, #9face6 100%);
+    background-image: linear-gradient(90deg, #74ebd5 0%, #9face6 100%);
 }
 
-.buttons:hover{
-  box-shadow: 5px 5px 5px #57bca9;
-  width: 281px;
+.buttons,
+a {
+    color: #112a46;
+    -webkit-transition: all 0.5s ease-in-out;
+    -moz-transition: all 0.5s ease-in-out;
+    -o-transition: all 0.5s ease-in-out;
+    transition: all 0.5s ease-in-out;
+}
+
+.buttons:hover {
+    box-shadow: 5px 5px 5px #57bca9;
+    width: 300px;
+}
+
+.buttons:hover,
+.buttons:hover a {
+    color: #fff;
 }
 
 .buttons a {
-  text-decoration: none;
+    text-decoration: none;
 }
