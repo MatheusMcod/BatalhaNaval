@@ -1,10 +1,10 @@
-<?php
+<?php  
+
 require_once '/wamp64/www/project/batalhaNaval/src/api/models/GameModelBot.php';
 require_once '/wamp64/www/project/batalhaNaval/src/api/models/GameModelUser.php';
 require_once '/wamp64/www/project/batalhaNaval/src/api/bot/NavalBotCreat.php';
 require_once '/wamp64/www/project/batalhaNaval/src/api/bot/NavalDifficultyBot.php';
 require_once __DIR__. '/Ships.php';
-require_once '/wamp64/www/project/batalhaNaval/src/api/core/Cors_config.php';
 class GameController {
 
     private $modelBot;
@@ -13,6 +13,20 @@ class GameController {
     public function __construct() {
         $this->modelBot = new GameModelBot;
         $this->modelUser = new GameModelUser;
+    }
+
+    private function hasUnitChanged($value1, $value2) {
+        $sum = $value1 + $value2;
+    
+        $lastDigitValue1 = $value1 % 10;
+        $lastDigitValue2 = $value2 % 10;
+        $lastDigitSum = $sum % 10;
+
+        if ($lastDigitValue1 + $lastDigitValue2 >= 10 || $lastDigitSum < $lastDigitValue1 || $lastDigitSum < $lastDigitValue2) {
+            return true;
+        }
+    
+        return false;
     }
 
     private function randomPositionsBot() {
@@ -28,7 +42,7 @@ class GameController {
         
             do {
                 $positions = rand(0, 99);
-            } while ($positions + $size > 99 || ($positions + $size)%10 > 9 || $grid[$positions] == -1);
+            } while ($positions + $size > 99 || $this->hasUnitChanged($positions, $size) || $grid[$positions] == -1);
 
             for ($i = 0; $i < $size; $i++) {
                 $botPositions[] = $positions+$i;
@@ -93,13 +107,14 @@ class GameController {
             echo json_encode(array('mensagem' => 'Método não permitido.'));
         }
     }
+
     public function userMove() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = json_decode(file_get_contents('php://input'));
 
             if ($data) {
-                $move = $data->move;
-                $shot = $data->shotType;
+                $move = $data[0]->move;
+                $shot = $data[0]->shotType;
 
                 if ($shot == "normal") {
                     $response = $this->processNormalUserMove($move, $shot);

@@ -18,17 +18,17 @@ body {
     display: grid;
     grid-template-columns: repeat(10, 60px);
     grid-template-rows: repeat(10, 60px);
+    padding-left: 30px;
 }
 
 .sub_container {
-
     margin-left: 50px;
     margin-right: 50px;
 
 }
 
 .DivRow {
-    padding-left: 20px;
+    padding-left: 50px;
     height: 20px;
     width: 100%;
 
@@ -54,6 +54,7 @@ body {
 
 .DivCollun {
     float: left;
+    padding-left: 20px;
     height: 100%;
     width: 20px;
 }
@@ -83,12 +84,10 @@ body {
 .grid_item {
     display: flex;
     justify-content: center;
-    /* Centraliza horizontalmente */
     align-items: center;
     border: 1px solid #000000;
-    /* Uma borda para cada célula */
-    /* Alinhar conteúdo ao centro */
-    cursor: pointer;
+    cursor: crosshair;
+
 }
 
 .modal{
@@ -104,4 +103,23 @@ body {
     border-radius: 10px;
     width: 100px;
     height: 30px;
+}
+
+.exib_remaining_ships {
+    display: grid;
+    grid-template-columns: repeat(11, 60px); 
+    grid-template-rows: repeat(4, 60px);    
+}
+
+.ships_img {
+    width: 98%;
+    height: 80%;
+}
+
+.shot_hit {
+    background-color: red;
+}
+
+.shot_miss {
+    background-color: blue;
 }

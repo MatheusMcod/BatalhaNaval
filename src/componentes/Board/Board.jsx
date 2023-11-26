@@ -293,7 +293,7 @@ function GameGride() {
           </button>
           {/* Concluído button */}
           
-          <button
+          <button type="submit"
             className={styles.con}
             onClick={() => submitShips()}
           >

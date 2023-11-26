@@ -41,11 +41,9 @@ class GameModelUser extends CreateConnection {
             $stmt->bindValue(':target', $target);
             $stmt->execute();
 
-            return true;
         } catch (PDOException $error) {
             error_log($error->getMessage());
             echo "Erro na solicitação";
-            return false;
         }
     }
 

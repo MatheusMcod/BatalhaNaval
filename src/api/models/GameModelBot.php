@@ -9,8 +9,9 @@ class GameModelBot extends CreateConnection {
             $connection->beginTransaction();
 
             foreach($ships as $ship) {
-                $stmt1 = $connection->prepare("INSERT INTO botshipsnames(name) VALUES (:shipName)");
+                $stmt1 = $connection->prepare("INSERT INTO botshipsnames(name, shipSize) VALUES (:shipName, :shipSize)");
                 $stmt1->bindValue(':shipName', $ship->getName());
+                $stmt1->bindValue(':shipSize', $ship->getSize());
                 $stmt1->execute();
                 $shipId = $connection->lastInsertId();
 
