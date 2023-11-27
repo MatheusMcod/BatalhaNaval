@@ -2,6 +2,7 @@
 
 require_once '/wamp64/www/project/batalhaNaval/src/api/models/GameModelBot.php';
 require_once '/wamp64/www/project/batalhaNaval/src/api/models/GameModelUser.php';
+require_once '/wamp64/www/project/batalhaNaval/src/api/models/GameModelData.php';
 require_once '/wamp64/www/project/batalhaNaval/src/api/bot/NavalBotCreat.php';
 require_once '/wamp64/www/project/batalhaNaval/src/api/bot/NavalDifficultyBot.php';
 require_once __DIR__. '/Ships.php';
@@ -9,10 +10,12 @@ class GameController {
 
     private $modelBot;
     private $modelUser;
+    private $modelData;
 
     public function __construct() {
         $this->modelBot = new GameModelBot;
         $this->modelUser = new GameModelUser;
+        $this->modelData = new GameModelData;
     }
 
     private function hasUnitChanged($value1, $value2) {
@@ -75,8 +78,12 @@ class GameController {
 
     public function startGame() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = json_decode(file_get_contents('php://input'));
+
+            //$this->modelData->registerStartGame($name);
             $this->modelBot->registerInicialPositionBot($this->randomPositionsBot());
             $this->PositionsUser();
+
         } else {
             http_response_code(405); 
             echo json_encode(array('mensagem' => 'Método não permitido.'));
@@ -113,15 +120,19 @@ class GameController {
             $data = json_decode(file_get_contents('php://input'));
 
             if ($data) {
-                $move = $data[0]->move;
-                $shot = $data[0]->shotType;
+                $move = $data->move;
+                $shot = $data->shotType;
 
-                if ($shot == "normal") {
-                    $response = $this->processNormalUserMove($move, $shot);
+                if(!$this->modelData->verifyEndGameBot()) {
+                    $hits = $this->modelUser->percentageHitsUser();
+                    $this->modelData->registerEndGame($hits);
                 } else {
-                    $response = $this->processEspeciallUserMove($move, $shot);
+                    if ($shot == "normal") {
+                        $response = $this->processNormalUserMove($move, $shot);
+                    } else {
+                        $response = $this->processEspeciallUserMove($move, $shot);
+                    }
                 }
-
                 http_response_code(200);
                 echo json_encode(array('Response' => $response)); 
             } else {
@@ -193,5 +204,32 @@ class GameController {
         }
     }
 
+    public function verifyEndGame() {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+
+            if (!$this->modelData->verifyEndGameBot()) {
+                return 'user';
+            }
+            if (!$this->modelData->verifyEndGameUser()) {
+                return 'bot';
+            }
+        
+            return false;
+            http_response_code(200);
+        } else {
+            http_response_code(405); 
+            echo json_encode(array('mensagem' => 'Método não permitido.'));
+        }
+    }
+
+    public function getLogs() {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $this->modelData->getLogs();
+            http_response_code(200);
+        } else {
+            http_response_code(405); 
+            echo json_encode(array('mensagem' => 'Método não permitido.'));
+        }
+    }
     
 }

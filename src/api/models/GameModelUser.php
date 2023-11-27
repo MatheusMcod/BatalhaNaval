@@ -144,6 +144,34 @@ class GameModelUser extends CreateConnection {
             return false;
         }
     }
+
+    public function percentageHitsUser() {
+        $connection = $this->conectaDB();
+
+        try {
+            $stmtHit = $connection->prepare("SELECT COUNT(*) as total_hit FROM user_plays WHERE Target = 'hit'");
+            $stmtHit->execute();
+            $resultadoHit = $stmtHit->fetch(PDO::FETCH_ASSOC);
+            $totalHit = $resultadoHit['total_hit'];
+
+            $stmtTotal = $connection->prepare("SELECT COUNT(*) as total FROM user_plays");
+            $stmtTotal->execute();
+            $resultadoTotal = $stmtTotal->fetch(PDO::FETCH_ASSOC);
+            $totalRegistros = $resultadoTotal['total'];
+
+            if ($totalRegistros > 0) {
+                $percentagHits = ($totalHit / $totalRegistros) * 100;
+                return $percentagHits;
+            } else {
+                return 0;
+            }
+
+        } catch (PDOException $error) {
+            error_log($error->getMessage());
+            echo "Erro na solicitação";
+            return false;
+        }
+    }
     
     public function resetGameUser() {
         //reseta os dados do jogo para um jogo novo

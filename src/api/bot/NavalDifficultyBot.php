@@ -1,13 +1,16 @@
 <?php
 require_once '/wamp64/www/project/batalhaNaval/src/api/models/GameModelBot.php';
 require_once '/wamp64/www/project/batalhaNaval/src/api/models/GameModelUser.php';
+require_once '/wamp64/www/project/batalhaNaval/src/api/models/GameModelData.php';
 class EasyBot {
     private $modelBot;
     private $modelUser;
+    private $modelData;
 
     public function __construct() {
         $this->modelBot = new GameModelBot;
         $this->modelUser = new GameModelUser;
+        $this->modelData = new GameModelData;
     }
 
     public function makeMove($gridSize) {
@@ -35,14 +38,14 @@ class EasyBot {
             }
         } else {
             $adjacentPositions = [0, -11, -10, -9, -1, 1, 9, 10, 11];
-            foreach ($adjacentPositions as $adjacent) {
-                do {
-                    $position = rand(0, $gridSize);
-                    $checkMoveExist = $this->modelBot->checkMovBot($position);
-                    $checkMoveCarried = in_array($position, $move);
-                } while ($checkMoveExist != false || $checkMoveCarried);
-                $move["move"] = $position;
+            do {
+                $position = rand(0, $gridSize);
+                $checkMoveExist = $this->modelBot->checkMovBot($position);
+                $checkMoveCarried = in_array($position, $move);
+            } while ($checkMoveExist != false || $checkMoveCarried);
+            $move["move"] = $position;
 
+            foreach ($adjacentPositions as $adjacent) {
                 if ($position % 10 == 0 && ($adjacent == -11 || $adjacent == -1 || $adjacent == 9)) {
                     continue;
                 }
@@ -58,8 +61,15 @@ class EasyBot {
                 }
             }   
         }
+
         if ($_SESSION["especial"] != 0) {
             $_SESSION["especial"] -= 1;
+        }
+
+        if(!$this->modelData->verifyEndGameUser()) {
+            session_destroy();
+            $hits = $this->modelBot->percentageHitsBot();
+            $this->modelData->registerEndGame($hits);
         }
 
         return $moves;     
@@ -69,10 +79,12 @@ class EasyBot {
 class MediumBot{
     private $modelBot;
     private $modelUser;
+    private $modelData;
 
     public function __construct() {
         $this->modelBot = new GameModelBot;
         $this->modelUser = new GameModelUser;
+        $this->modelData = new GameModelData;
     }
 
     public function makeMove($gridSize) {
@@ -187,6 +199,13 @@ class MediumBot{
                     $moves[] = $move;
                 }
             }
+
+            if(!$this->modelData->verifyEndGameUser()) {
+                session_destroy();
+                $hits = $this->modelBot->percentageHitsBot();
+                $this->modelData->registerEndGame($hits);
+            }
+
             return $moves;
         } else {
             $position = null;
@@ -236,8 +255,15 @@ class MediumBot{
                     $moves[] = $moveParam;
                 }
             }
+
             if ($_SESSION["especial"] != 0) {
                 $_SESSION["especial"] -= 1;
+            }
+
+            if(!$this->modelData->verifyEndGameUser()) {
+                session_destroy();
+                $hits = $this->modelBot->percentageHitsBot();
+                $this->modelData->registerEndGame($hits);
             }
             return $moves;
         }
@@ -247,10 +273,12 @@ class MediumBot{
 class HardBot {
     private $modelBot;
     private $modelUser;
+    private $modelData;
 
     public function __construct() {
         $this->modelBot = new GameModelBot;
         $this->modelUser = new GameModelUser;
+        $this->modelData = new GameModelData;
     }
 
     public function makeMove($gridSize) {
@@ -357,6 +385,12 @@ class HardBot {
         }
         if ($_SESSION["especial"] != 0) {
             $_SESSION["especial"] -= 1;
+        }
+
+        if(!$this->modelData->verifyEndGameUser()) {
+            session_destroy();
+            $hits = $this->modelBot->percentageHitsBot();
+            $this->modelData->registerEndGame($hits);
         }
         
         return $moves;     

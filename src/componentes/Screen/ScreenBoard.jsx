@@ -3,10 +3,9 @@ import Modal from '../modal/modal';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import shipsImg from '../../Imagens/ShipsImages/ShipsExport';
-import '/src/componentes/Screen/GridPostions.css';
 
 function GameGride() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    
 
 
     const numRows = 10;
@@ -28,35 +27,35 @@ function GameGride() {
         };
     });
 
-    const [images, setImages] = useState([
+    const [images] = useState([
         {
           name: "Submarinos",
-          sink: false,
           content: <img src={shipsImg.ship1} className={styles.ships_img}></img>
         },
         {
           name: "Contratorpedeiro",
-          sink: false,
           content: <img src={shipsImg.ship2} className={styles.ships_img}></img>
         },
         {
           name: "Navio_Tanque",
-          sink: false,
           content: <img src={shipsImg.ship3} className={styles.ships_img}></img>
         },
         {
           name: "PortaAvioes",
-          sink: false,
           content: <img src={shipsImg.ship4} className={styles.ships_img}></img>
         }
     ]);
 
+    const [dadosModal, setDadosModal] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [gridUser, setGridUser] = useState(gridItensUser);
     const [gridBot, setGridBot] = useState(gridItensBot);
     const [botShips, setBotShips] = useState([]);
     const [userShips, setUserShips] = useState([]);
     const [numberShot, setNumberShot] = useState(0);
-    const [sendMovBack] = useState({shotType: 'normal', move: []});
+    const [shotType, setShotType] = useState('normal');
+    const [quantEspecial, setquantEspecial] = useState(2);
+    const [sendMovBack, setMovBack] = useState({shotType: 'normal', move: []});
 
 
     //Defimos a classe responsavel por expandir a div do navio;
@@ -136,6 +135,28 @@ function GameGride() {
         }
     };
 
+    const getBotMov = async () => {
+        if (numberShot == 3) {
+            try {
+            const response = await axios.get("http://batalhanaval/bot/move?gridSize=99&difficulty=easy");
+
+            if (response.status == 200) {
+                let grid = [...gridUser];
+                let data = response.data;
+                data.forEach(item => {
+                    grid[item.move].hit = item.target;
+                });
+                setGridUser(grid);
+            } else {
+                throw new Error('Erro na requisição');
+            }
+        
+            } catch (error) {
+                console.error('Falha ao enviar os dados:', error);
+            }
+        }    
+    };
+
     const definePositionsShips = () => {
         let shipsBot = [...botShips];
         let shipsUser = [...userShips];
@@ -155,6 +176,56 @@ function GameGride() {
         setGridUser(positionsUser);
     }
 
+    const especialMov = (divId, shipId) => {
+        let quantShot = numberShot;
+        let botGrid = [...gridBot];
+        const adjacentPositions = [0, -11, -10, -9, -1, 1, 9, 10, 11];
+        sendMovBack.shotType = 'especial';
+        let id = divId;
+
+        for (let adjacent of adjacentPositions) {
+            divId = id + adjacent;
+            
+            if (divId > 99 || divId < 0) {
+                continue;
+            }
+            if (id % 10 == 0 && (adjacent == -11 || adjacent == -1 || adjacent == 9)) {
+                continue;
+            }
+            if (id % 10 == 9 && (adjacent == 11 || adjacent == 1 || adjacent == -9)) {
+                continue; 
+            }
+
+            if(shipId.trim() && botGrid[divId].hit == null) {
+                botGrid[divId].hit = 'hit';
+
+                let shipsBot = [...botShips];
+                if (shipsBot.filter(ship => ship.shipID == shipId).length == 1) {
+                    shipsBot.forEach(ship => {
+                        if(ship.shipID == shipId) {
+                            ship.shipSize = 0;
+                        }
+                    });
+                    setBotShips(shipsBot);
+                    
+                } else {
+                    shipsBot = shipsBot.filter(ship => ship.position != divId);
+                    setBotShips(shipsBot);
+                }
+                sendMovBack.move.push(divId);
+            } else if (!shipId.trim() && botGrid[divId].hit == null) {
+                botGrid[divId].hit = 'miss';
+                quantShot += 1;
+                setNumberShot(quantShot);
+                sendMovBack.move.push(divId);
+            }
+        }
+
+        setNumberShot(3);
+        setquantEspecial(quantEspecial - 1);
+        setShotType('normal');
+    }
+
     const handleClick = (event) => {
         const divId = event.currentTarget.id;
         const shipId = event.currentTarget.textContent;
@@ -164,52 +235,63 @@ function GameGride() {
         gridSearchId = gridSearchId ? parseInt(gridSearchId[0]) : null;
 
         let botGrid = [...gridBot];
-        
-        if(shipId.trim() && botGrid[gridSearchId].hit == null /*&& quantShot != 3*/) {
-            botGrid[gridSearchId].hit = 'hit';
-            quantShot += 1;
-            setNumberShot(quantShot);
 
-            let shipsBot = [...botShips];
-            if (shipsBot.filter(ship => ship.shipID == shipId).length == 1) {
-                shipsBot.forEach(ship => {
-                    if(ship.shipID == shipId) {
-                        ship.shipSize = 0;
-                    }
-                });
-                setBotShips(shipsBot);
-                
-            } else {
-                shipsBot = shipsBot.filter(ship => ship.position != gridSearchId);
-                setBotShips(shipsBot);
+        if (shotType == 'normal') {
+            if(shipId.trim() && botGrid[gridSearchId].hit == null && quantShot != 3) {
+                botGrid[gridSearchId].hit = 'hit';
+                quantShot += 1;
+                setNumberShot(quantShot);
+
+                let shipsBot = [...botShips];
+                if (shipsBot.filter(ship => ship.shipID == shipId).length == 1) {
+                    shipsBot.forEach(ship => {
+                        if(ship.shipID == shipId) {
+                            ship.shipSize = 0;
+                        }
+                    });
+                    setBotShips(shipsBot);
+                    
+                } else {
+                    shipsBot = shipsBot.filter(ship => ship.position != gridSearchId);
+                    setBotShips(shipsBot);
+                }
+                sendMovBack.move.push(gridSearchId);
+            } else if (!shipId.trim() && botGrid[gridSearchId].hit == null && quantShot != 3) {
+                botGrid[gridSearchId].hit = 'miss';
+                quantShot += 1;
+                setNumberShot(quantShot);
+                sendMovBack.move.push(gridSearchId);
             }
-            sendMovBack.move.push(gridSearchId);
-        } else if (!shipId.trim() && botGrid[gridSearchId].hit == null && quantShot != 3) {
-            botGrid[gridSearchId].hit = 'miss';
-            quantShot += 1;
-            setNumberShot(quantShot);
-            sendMovBack.move.push(gridSearchId);
+        } else {
+            especialMov(gridSearchId, shipId);
         }
-
         
     
         setGridBot(botGrid);
       };
 
     const sendMove = async () => {
-        let sendMov = sendMovBack;
-        try {
-          const response = await axios.post('http://batalhanaval/user/move', sendMov);
+        if (numberShot == 3) {
+            try {
+                const response = await axios.post('http://batalhanaval/user/move', sendMovBack);
+                if (response.status == 200) {
+                    setNumberShot(0);
+                    setMovBack({shotType: 'normal', move: []});
+                    const verify = await axios.get('http://batalhanaval/verify/end');
+                    console.log(verify)
+                    if (verify.data != false) {
+                        setIsModalOpen(true);
+                        const date = await axios.get('http://batalhanaval/get/logs');
+                        console.log(date)
+                        setDadosModal(date);
+                    }
+                } else {
+                    throw new Error('Erro na requisição');
+                }
             
-          console.log(response);
-          if (response.status == 200) {
-            setNumberShot(0);
-          } else {
-            throw new Error('Erro na requisição');
-          }
-    
-        } catch (error) {
-            console.error('Falha ao enviar os dados:', error);
+                } catch (error) {
+                    console.error('Falha ao enviar os dados:', error);
+            } 
         }
     };
 
@@ -241,46 +323,20 @@ function GameGride() {
                     <div className={styles.grid_container_board}>
 
                         {gridUser.map(item => {
-                            return (
-                                <div key={item.id} className={styles.grid_item} id={`item-${item.id}`}>
-                                    {item.content}
-                                </div>
-                            )
+                            if (item.hit != null) {
+                                return (
+                                    <div key={item.id} className={`${styles.grid_item} ${item.hit == 'hit' ? styles.shot_hit : styles.shot_miss}`} id={`item-${item.id}`}>
+                                        {item.content}
+                                    </div>
+                                )
+                            } else {
+                                return (
+                                    <div key={item.id} className={styles.grid_item} id={`item-${item.id}`}>
+                                        {item.content}
+                                    </div>
+                                )
+                            }    
                         })}
-                    </div>
-                    <div className={styles.exib_remaining_ships}>
-                        {(() => {
-                            const contadores = {
-                                'Submarinos': 0,
-                                'Contratorpedeiro': 0,
-                                'Navio_Tanque': 0,
-                                'PortaAvioes': 0
-                            };
-
-                            const contentCounts = {
-                                'Submarinos': 4,
-                                'Contratorpedeiro': 3,
-                                'Navio_Tanque': 2,
-                                'PortaAvioes': 1
-                            };
-
-                            return images.reduce((acc, item) => {
-                                const contentCount = contentCounts[item.name] || 0;
-
-                                for (let i = 0; i < contentCount; i++) {
-                                    contadores[item.name]++;
-                                    const uniqueClass = `${item.name}${contadores[item.name]}`;
-                                    
-                                    acc.push(
-                                        <div key={`${item.name}-${contadores[item.name]}`} className={uniqueClass}>
-                                            {item.content}
-                                        </div>
-                                    );
-                                }
-
-                                return acc;
-                            }, []);
-                        })()}
                     </div>
                 </div>
                 <div className={styles.sub_container}>
@@ -315,40 +371,6 @@ function GameGride() {
                             }    
                         })}
                     </div>
-                    <div className={styles.exib_remaining_ships}>
-                        {(() => {
-                            const contadores = {
-                                'Submarinos': 0,
-                                'Contratorpedeiro': 0,
-                                'Navio_Tanque': 0,
-                                'PortaAvioes': 0
-                            };
-
-                            const contentCounts = {
-                                'Submarinos': 4,
-                                'Contratorpedeiro': 3,
-                                'Navio_Tanque': 2,
-                                'PortaAvioes': 1
-                            };
-
-                            return images.reduce((acc, item) => {
-                                const contentCount = contentCounts[item.name] || 0;
-
-                                for (let i = 0; i < contentCount; i++) {
-                                    contadores[item.name]++;
-                                    const uniqueClass = `${item.name}${contadores[item.name]}`;
-                                    
-                                    acc.push(
-                                        <div key={`${item.name}-${contadores[item.name]}`} className={uniqueClass}>
-                                            {item.content}
-                                        </div>
-                                    );
-                                }
-
-                                return acc;
-                            }, []);
-                        })()}
-                    </div>
                 </div>
 
 
@@ -361,15 +383,19 @@ function GameGride() {
                 <button className={styles.button} onClick={() => definePositionsShips()/*setIsModalOpen(true)*/}>
                     Abrir Modal
                 </button>
-                <button className={styles.button} onClick={() => sendMove()}>
-                    Proximo
+                <button className={styles.button} onClick={() => {sendMove(); getBotMov();}}>
+                    Movimento
+                </button>
+                <button className={styles.button} onClick={() => {setShotType('especial')}}>
+                    Especial
                 </button>
                 <Modal isOpen={isModalOpen} width={400} height={400} setIsModalClose={() => setIsModalOpen(!isModalOpen)}>
                 {/* seu conteudo */}
-                        
-
-
-
+                    <ul>
+                        {dadosModal.map((item, index) => (
+                            <li key={index}>{item}</li>
+                        ))}
+                    </ul> 
                 </Modal>
 
             </div>
