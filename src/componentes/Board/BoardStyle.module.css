@@ -1,4 +1,4 @@
-body{
+body {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -7,22 +7,20 @@ body{
     display: flex;
 }
 
-
 .grid_container_board {
     display: grid;
-    grid-template-columns: repeat(10, 60px); 
-    grid-template-rows: repeat(10, 60px);     
+    grid-template-columns: repeat(10, 60px);
+    grid-template-rows: repeat(10, 60px);
 }
-  
-.sub_container{
+
+.sub_container {
     padding: 10px;
 }
 
-.DivRow{
+.DivRow {
     padding-left: 20px;
     height: 20px;
     width: 100%;
-
 }
 .listahorizontal {
     display: flex;
@@ -30,13 +28,12 @@ body{
     padding: 0;
     margin-bottom: 10px;
     /* border: 1px solid red; */
-    
 }
-    
+
 .listahorizontal li {
     text-align: center;
     width: 60px;
-    height:20px;
+    height: 20px;
     /* border: 1px solid red; */
     font-size: large;
     font-weight: 700;
@@ -54,12 +51,11 @@ body{
     list-style: none;
     padding: 0;
     /* border: 1px solid red; */
- 
 }
-.listaVertical li{
+.listaVertical li {
     display: flex;
     width: 20px;
-    height:60px;
+    height: 60px;
     align-items: center;
     justify-self: center;
     /* border: 1px solid red; */
@@ -71,7 +67,7 @@ body{
     display: flex;
     justify-content: center; /* Centraliza horizontalmente */
     align-items: center;
-    border: 1px solid #000000; /* Uma borda para cada célula */            /* Alinhar conteúdo ao centro */
+    border: 1px solid #000000; /* Uma borda para cada célula */ /* Alinhar conteúdo ao centro */
 }
 
 .ships_img {
@@ -95,35 +91,31 @@ body{
     grid-column: span 5;
 }
 
-.container{
+.container {
     display: flex;
     border: 1px solid rgb(14, 14, 14);
-    flex-Direction: column;
+    flex-direction: column;
     margin: 10px;
     padding: 10px;
-    border-Radius:8px;
-    box-Shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.btn{
-    padding:10px;
-    background-Color: #4CAF50;
+.btn {
+    padding: 10px;
+    background-color: #4caf50;
     color: "white";
     border: none;
-    border-Radius: 4px;
-    cursor:pointer;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
-.con{
+.con {
     margin-top: 10px;
-    padding:10px;
-    background-Color: #4cafad;
+    padding: 10px;
+    background-color: #4cafad;
     color: "white";
     border: none;
-    border-Radius: 4px;
-    cursor:pointer;
+    border-radius: 4px;
+    cursor: pointer;
 }
-
-
-
-
