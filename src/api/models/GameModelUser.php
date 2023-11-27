@@ -16,7 +16,7 @@ class GameModelUser extends CreateConnection {
                 $shipId = $connection->lastInsertId();
 
                 $stmt = $connection->prepare("INSERT INTO usershipspositions (position, shipName) VALUES (:position, :shipNameID)");
-                foreach ($ship->positions as $position) {
+                foreach ($ship->position as $position) {
                     $stmt->bindValue(':position', $position);
                     $stmt->bindValue(':shipNameID', $shipId);
                     $stmt->execute();

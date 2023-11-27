@@ -87,7 +87,7 @@ body {
     align-items: center;
     border: 1px solid #000000;
     cursor: crosshair;
-
+    background-color: blue;
 }
 
 .modal{
@@ -121,5 +121,5 @@ body {
 }
 
 .shot_miss {
-    background-color: blue;
+    background-color: darkblue;
 }

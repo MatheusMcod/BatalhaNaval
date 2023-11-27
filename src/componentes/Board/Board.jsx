@@ -41,6 +41,7 @@ function GameGride() {
   */
     const numRows = 10;
     const numCols = 10;
+    const navigate = useNavigate;
 
     const initialGridItems = Array.from({ length: numRows * numCols }, (_, index) => {
         return {
@@ -75,8 +76,10 @@ function GameGride() {
     const setUserOptPosition = (ship, positionShip) => {
         const userOpt = { name: ship.name, position: [], size: ship.size };
         let setUserOpt = [...userOptShipsPosition];
-        for (let i = 0; i < ship.sizeShip; i++) {
-            userOpt.position[i] = positionShip + i;
+        for (let i = 0; i < ship.size; i++) {
+            userOpt.position.push(positionShip + i);
+            console.log(userOpt)
+            console.log(userOpt.position)
         }
         setUserOpt.push(userOpt);
         setUserOptShipsPosition(setUserOpt);
@@ -166,13 +169,12 @@ function GameGride() {
         }
     };
 
-    const submitShips = async (event) => {
-        event.preventDefault();
+    const submitShips = async () => {
         let userOpt = [...userOptShipsPosition];
+        console.log(userOpt)
 
         try {
             const response = await axios.post("http://batalhanaval", userOpt);
-            const navigate = useNavigate;
 
             if (response.status == 200) {
                 navigate("/Screen");
